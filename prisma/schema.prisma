@@ -1,0 +1,269 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// NextAuth Models
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String   @db.ObjectId
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+enum Role {
+  user
+  admin
+}
+
+model User {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  email         String        @unique
+  emailVerified DateTime?
+  password      String
+  firstName     String
+  lastName      String
+  image         String?
+  role          Role          @default(user)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  pets          Pet[]
+  notifications Notification[]
+  appointments  Appointment[]
+  prescriptions Prescription[]
+  accounts      Account[]
+  sessions      Session[]
+}
+
+// Rest of your models with MongoDB adjustments
+model Pet {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  type          String
+  breed         String
+  bloodType     String
+  birthday      DateTime
+  sex           String
+  img           String?
+  userId        String        @db.ObjectId
+  user          User          @relation(fields: [userId], references: [id])
+  healthRecords HealthRecord[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  vaccinations  Vaccination[]
+  dewormings    Deworming[]
+  appointments  Appointment[]
+  prescriptions Prescription[]
+}
+
+model Vaccination {
+  id             String                   @id @default(auto()) @map("_id") @db.ObjectId
+  weight         Float
+  vaccineName    String
+  medicineName   String
+  manufacturer   String
+  date           DateTime                 @default(now())
+  nextDueDate    DateTime?
+  pet            Pet                      @relation(fields: [petId], references: [id])
+  petId          String                   @db.ObjectId
+  veterinarian   Veterinarian            @relation(fields: [veterinarianId], references: [id])
+  veterinarianId String                   @db.ObjectId
+  appointments   AppointmentVaccination[]
+}
+
+model Veterinarian {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  specialization String
+  phone         String
+  email         String
+  prclicNo      String
+  prtNo         String
+  tinNo         String
+  vaccinations  Vaccination[]
+  dewormings    Deworming[]
+  prescriptions Prescription[]
+}
+
+model Deworming {
+  id             String                 @id @default(auto()) @map("_id") @db.ObjectId
+  weight         Float
+  dewormingName  String
+  medicineName   String
+  manufacturer   String
+  date           DateTime               @default(now())
+  nextDueDate    DateTime?
+  pet            Pet                    @relation(fields: [petId], references: [id])
+  petId          String                 @db.ObjectId
+  veterinarian   Veterinarian          @relation(fields: [veterinarianId], references: [id])
+  veterinarianId String                 @db.ObjectId
+  appointments   AppointmentDeworming[]
+}
+
+model ClinicInfo {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  address          String
+  phone            String
+  email            String
+  openingHours     String
+  emergencyContact String?
+}
+
+model Service {
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  name         String        @unique
+  description  String
+  duration     Int
+  price        Float
+  appointments Appointment[]
+}
+
+model Notification {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  user      User      @relation(fields: [userId], references: [id])
+  userId    String    @db.ObjectId
+  message   String
+  type      String
+  sentAt    DateTime  @default(now())
+  readAt    DateTime?
+  isRead    Boolean   @default(false)
+}
+
+model Appointment {
+  id             String                   @id @default(auto()) @map("_id") @db.ObjectId
+  pet            Pet                      @relation(fields: [petId], references: [id])
+  petId          String                   @db.ObjectId
+  user           User                     @relation(fields: [userId], references: [id])
+  userId         String                   @db.ObjectId
+  service        Service                  @relation(fields: [serviceId], references: [id])
+  serviceId      String                   @db.ObjectId
+  date           DateTime
+  time           DateTime
+  status         String                   @default("pending")
+  notes          String?
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+  prescriptions  Prescription[]
+  vaccinations   AppointmentVaccination[]
+  dewormings     AppointmentDeworming[]
+  healthRecords  AppointmentHealthRecord[]
+}
+
+model HealthRecord {
+  id           String                   @id @default(auto()) @map("_id") @db.ObjectId
+  petId        String                   @db.ObjectId
+  pet          Pet                      @relation(fields: [petId], references: [id])
+  date         DateTime
+  weight       Float
+  temperature  Float
+  diagnosis    String
+  treatment    String
+  notes        String?
+  createdAt    DateTime                 @default(now())
+  updatedAt    DateTime                 @updatedAt
+  appointments AppointmentHealthRecord[]
+}
+
+model Prescription {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  pet            Pet          @relation(fields: [petId], references: [id])
+  petId          String       @db.ObjectId
+  user           User         @relation(fields: [userId], references: [id])
+  userId         String       @db.ObjectId
+  appointment    Appointment? @relation(fields: [appointmentId], references: [id])
+  appointmentId  String?      @db.ObjectId
+  veterinarian   Veterinarian @relation(fields: [veterinarianId], references: [id])
+  veterinarianId String       @db.ObjectId
+  medication     Json[]
+  status         String       @default("active")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model RehomingPet {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  age          String
+  gender       String
+  breed        String
+  type         String
+  imageUrl     String
+  sellerName   String
+  sellerPhone  String
+  sellerEmail  String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Announcement {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  content   String
+  startDate DateTime
+  endDate   DateTime
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Add these junction models for many-to-many relationships
+
+model AppointmentVaccination {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+  appointmentId String      @db.ObjectId
+  vaccination   Vaccination @relation(fields: [vaccinationId], references: [id])
+  vaccinationId String      @db.ObjectId
+}
+
+model AppointmentDeworming {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+  appointmentId String      @db.ObjectId
+  deworming     Deworming   @relation(fields: [dewormingId], references: [id])
+  dewormingId   String      @db.ObjectId
+}
+
+model AppointmentHealthRecord {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  appointment    Appointment  @relation(fields: [appointmentId], references: [id])
+  appointmentId  String       @db.ObjectId
+  healthRecord   HealthRecord @relation(fields: [healthRecordId], references: [id])
+  healthRecordId String       @db.ObjectId
+}
+// Continue with the rest of your models, replacing:
+// - Int @id @default(autoincrement()) with String @id @default(auto()) @map("_id") @db.ObjectId
+// - All foreign key fields from Int to String @db.ObjectId
