@@ -4,15 +4,17 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "./node_modules/.bin/prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
+    "postinstall": "./node_modules/.bin/prisma generate",
     "test-db": "cross-env NODE_OPTIONS=\"--loader ts-node/esm\" node scripts/test-db.mts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.3",
     "@heroicons/react": "^2.1.5",
     "@prisma/client": "^5.22.0",
+    "prisma": "^5.22.0",
     "bcryptjs": "^2.4.3",
     "mongodb": "^6.10.0",
     "next": "^14.0.4",
