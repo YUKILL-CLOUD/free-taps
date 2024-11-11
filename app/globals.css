@@ -2,20 +2,253 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+.react-calendar {
+  width: 100% !important;
+  border: none !important;
+  font-family: "Inter", sans-serif !important;
 }
 
-@media (prefers-color-scheme: dark) {
+.react-calendar__navigation__label__labelText {
+  font-weight: 600;
+}
+
+.react-calendar__tile--active {
+  background-color: rgba(196, 190, 225, 0.8) !important;
+  color: rgb(31, 31, 31) !important;
+}
+
+.rbc-btn-group:first-child {
+  display: none !important;
+}
+
+.rbc-toolbar-label {
+  text-align: right !important;
+  padding: 0px 20px !important;
+}
+
+.rbc-btn-group:last-child {
+  font-size: 13px !important;
+}
+
+.rbc-btn-group:last-child button {
+  border: none !important;
+  background-color: rgba(196, 190, 225, 0.9) !important;
+  margin-left: 2px !important;
+}
+
+.rbc-toolbar button.rbc-active {
+  background-color: rgba(196, 190, 225, 0.9)!important;
+  box-shadow: none !important;
+}
+
+.rbc-time-view {
+  border-color: #eee !important;
+}
+
+.rbc-time-header {
+  display: none !important;
+}
+
+.rbc-time-content {
+  border: none !important;
+}
+
+.rbc-time-gutter.rbc-time-column {
+  font-size: 12px !important;
+}
+
+.rbc-time-gutter.rbc-time-column .rbc-timeslot-group {
+  padding: 0px 20px !important;
+}
+
+.rbc-timeslot-group {
+  background-color: rgba(196, 190, 225, 0.9) !important;
+}
+
+.rbc-day-slot {
+  font-size: 14px !important;
+}
+
+.rbc-event {
+  border: none !important;
+  color: black !important;
+  padding: 10px !important;
+  margin: 10px !important;
+  width: 99% !important;
+}
+
+.rbc-event:nth-child(1) {
+  background-color: rgba(196, 190, 225, 0.9) !important;
+}
+.rbc-event:nth-child(2) {
+  background-color: rgba(196, 190, 225, 0.9) !important;
+}
+.rbc-event:nth-child(3) {
+  background-color: rgba(196, 190, 225, 0.9) !important;
+}
+.rbc-event:nth-child(4) {
+  background-color: rgba(196, 190, 225, 0.9) !important;
+}
+.rbc-event:nth-child(5) {
+    background-color: rgba(196, 190, 225, 0.9) !important;
+}
+.rbc-event:nth-child(6) {
+  background-color: rgba(196, 190, 225, 0.9) !important;
+}
+.rbc-event:nth-child(7) {
+  background-color: rgba(196, 190, 225, 0.9) !important;
+}
+.rbc-event:nth-child(8) {
+  background-color: rgba(196, 190, 225, 0.9) !important;
+}
+
+.rbc-event-label{
+  color: gray !important;
+  margin-bottom: 5px;
+}
+
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.rbc-calendar {
+  font-family: 'Inter', sans-serif;
+}
+
+.rbc-toolbar {
+  padding: 10px;
+  background-color: rgba(196, 190, 225, 0.8); /* mainColor.light */
+  border-radius: 8px 8px 0 0;
+}
+
+.rbc-toolbar button {
+  color: rgba(94, 84, 142, 1); /* mainColor.default */
+  background-color: white;
+  border: 1px solid rgba(196, 190, 225, 0.8); /* mainColor.light */
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 14px;
+}
+
+.rbc-toolbar button:hover {
+  background-color: rgba(159, 134, 192, 0.1); /* mainHover with low opacity */
+}
+
+.rbc-toolbar button.rbc-active {
+  background-color: rgba(94, 84, 142, 1); /* mainColor.default */
+  color: white;
+}
+
+.rbc-month-view, .rbc-time-view {
+  border: 1px solid rgba(196, 190, 225, 0.8); /* mainColor.light */
+  border-radius: 0 0 8px 8px;
+}
+
+.rbc-month-row + .rbc-month-row,
+.rbc-day-bg + .rbc-day-bg {
+  border-color: rgba(196, 190, 225, 0.8); /* mainColor.light */
+}
+
+.rbc-header {
+  padding: 10px;
+  font-weight: 600;
+  color: rgba(94, 84, 142, 1); /* mainColor.default */
+}
+
+.rbc-event {
+  background-color: rgba(94, 84, 142, 0.8); /* mainColor.default with some transparency */
+  border-radius: 4px;
+  color: white;
+  font-size: 12px;
+  padding: 2px 5px;
+}
+
+.rbc-event-content {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rbc-today {
+  background-color: rgba(196, 190, 225, 0.3); /* mainColor.light with low opacity */
+}
+
+.rbc-off-range-bg {
+  background-color: rgba(196, 190, 225, 0.1); /* mainColor.light with very low opacity */
+}
+
+@media print {
+  @page {
+    margin: 20mm;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
 }
