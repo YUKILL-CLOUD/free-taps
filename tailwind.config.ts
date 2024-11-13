@@ -1,30 +1,31 @@
 import type { Config } from "tailwindcss";
 
 export default {
-  content: [
+    darkMode: ["class"],
+    content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {
-      backgroundImage: {
+  	extend: {
+  		backgroundImage: {
   			'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
   			'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))'
   		},
-      colors: {
+  		colors: {
   			mainColor: {
-				50: '#f5f3f9',
-				100: '#e9e6f3',
-				200: '#d4cfe7',
-				300: '#b8afd6',
-				400: '#9a8bc2',
-				500: '#8269af',
-				600: '#6e559a',
-				700: '#5e548e',  // This is your default color
-				800: '#4e4574',
-				900: '#423c60',
-				950: '#2a2639',
+  				'50': '#f5f3f9',
+  				'100': '#e9e6f3',
+  				'200': '#d4cfe7',
+  				'300': '#b8afd6',
+  				'400': '#9a8bc2',
+  				'500': '#8269af',
+  				'600': '#6e559a',
+  				'700': '#5e548e',
+  				'800': '#4e4574',
+  				'900': '#423c60',
+  				'950': '#2a2639',
   				light: 'rgba(196, 190, 225, 0.8)'
   			},
   			mainHover: 'rgba(159, 134, 192)',
@@ -75,7 +76,7 @@ export default {
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		}
-    },
+  	}
   },
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;

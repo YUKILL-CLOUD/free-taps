@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Icon } from '@iconify/react';
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface MenuItemProps {
   items: any[];
@@ -11,6 +12,17 @@ interface MenuItemProps {
 
 export function MenuClient({ items, role }: MenuItemProps) {
   const [openMenus, setOpenMenus] = useState<{ [key: string]: boolean }>({});
+  const router = useRouter();
+
+  const handleItemClick = (item: any, e: React.MouseEvent) => {
+    e.preventDefault();
+    if (item.href) {
+      router.push(item.href);
+    }
+    if (item.submenu) {
+      toggleMenu(item.label);
+    }
+  };
 
   const toggleMenu = (label: string) => {
     setOpenMenus(prev => ({
@@ -28,9 +40,10 @@ export function MenuClient({ items, role }: MenuItemProps) {
           <div key={item.label}>
             {item.submenu ? (
               <div className="relative">
-                <div 
+                <Link
+                  href={item.href}
+                  onClick={(e) => handleItemClick(item, e)}
                   className="flex items-center justify-center lg:justify-start gap-4 text-gray-500 py-2 md:px-2 rounded-md hover:bg-mainColor-Light cursor-pointer"
-                  onClick={() => toggleMenu(item.label)}
                 >
                   <Icon icon={item.icon} width="24" height="24" />
                   <span className="hidden lg:block">{item.label}</span>
@@ -40,7 +53,7 @@ export function MenuClient({ items, role }: MenuItemProps) {
                     height="24" 
                     className="hidden lg:block ml-auto"
                   />
-                </div>
+                </Link>
                 {openMenus[item.label] && (
                   <div className="mt-2 bg-gray-50 border-b border-gray-200 rounded-b-md">
                     {item.submenu.map((subItem: any) => {
