@@ -20,12 +20,11 @@ const FormModal = ({
   onSubmitSuccess,
   trigger,
 }: {
-  table:
-    | "pet"
+  table: "pet"
   type: "create" | "update" | "delete";
   data?: any;
   id?: string;
-  onSubmitSuccess?: () => void; // New prop type
+  onSubmitSuccess?: () => void;
   trigger?: React.ReactNode; 
 }) => {
   const size = type === "create" ? "w-8 h-8" : "w-5 h-5";
@@ -41,7 +40,7 @@ const FormModal = ({
 
   const handleDelete = async () => {
     if (id) {
-      const result = await deletePet({ success: false, error: null }, id); // Pass ActionResult and petId
+      const result = await deletePet(id); // Pass ActionResult and petId
       if (result.success) {
         toast.success("Pet has been deleted!");
         setOpen(false);
