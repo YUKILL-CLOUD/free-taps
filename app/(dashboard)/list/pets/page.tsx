@@ -10,6 +10,7 @@ import PaginationWrapper from "./PaginationWrapper";
 import FormModal from "@/app/components/front/FormModal";
 import TableSearch from "@/app/components/front/TableSearch";
 import Table from "@/app/components/front/Table";
+import { Icon } from "@iconify/react/dist/iconify.js";
 
 type PetList = Pet & {Appointments:Appointment[]} & {healthRecords:HealthRecord[]} & {user:User}
 
@@ -19,7 +20,7 @@ const columns = [
     accessor: "info",
   },
   {
-    header: "user",
+    header: "owner",
     accessor: "pets",
     className: "hidden md:table-cell",
   },
@@ -63,7 +64,7 @@ const calculateAge = (birthday: Date) => {
 const renderRow = (item: PetList) => (
     <tr
       key={ item.id}
-      className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight"
+      className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-mainColor-light"
     > 
       <td className="flex items-center gap-4 p-4">
       <div className="md:hidden xl:block w-10 h-10 rounded-full overflow-hidden">{item.img ? (
@@ -73,7 +74,10 @@ const renderRow = (item: PetList) => (
       className="w-full h-full object-cover"
     />
   ) : (
-    <img src="/noAvatar.png" alt="" />
+    <Icon 
+      icon="tabler:paw-filled"
+      className="w-full h-full object-cover text-gray-400"
+    />
   )}
    </div> 
         <div className="flex flex-col">

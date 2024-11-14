@@ -9,9 +9,11 @@ interface InputFieldProps {
   type?: string;
   defaultValue?: string;
   step?: string;
+  placeholder?: string;
+  [key: string]: any;
 }
 
-const InputField: React.FC<InputFieldProps> = ({ label, name, register, error, type, step = '1', defaultValue }) => {
+const InputField: React.FC<InputFieldProps> = ({ label, name, placeholder,  register, error, type, step = '1', defaultValue }) => {
   return (
     <div>
       <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
@@ -19,6 +21,7 @@ const InputField: React.FC<InputFieldProps> = ({ label, name, register, error, t
       </label>
       <input
         type={type}
+        placeholder={placeholder}
         id={name}
         step={step}
         {...register(name)}
