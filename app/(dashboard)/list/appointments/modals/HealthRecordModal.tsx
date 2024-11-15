@@ -15,21 +15,19 @@ interface HealthRecordModalProps {
 export function HealthRecordModal({ isOpen, onClose, appointment, onFormSubmit }: HealthRecordModalProps) {
   const handleSubmit = async (formData: FormData) => {
     try {
-    
       const result = await createHealthRecordRelation(formData, appointment.id);
       if (!result.success) {
-       
         toast.error(result.error || 'Failed to add health record');
         return;
       }
 
       toast.success('Health record added successfully');
       
-      console.log('Updating appointment status...');
-      const statusResult = await updateAppointmentStatus({} as any, { 
+      const statusResult = await updateAppointmentStatus({} as any, {
         id: appointment.id,
-        status: 'completed' 
+        status: 'completed'
       });
+
       console.log('Status update result:', statusResult);
 
       if (statusResult.success) {

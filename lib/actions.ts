@@ -36,7 +36,6 @@ export const updateUserRole = async (userId: string, newRole: Role): Promise<Act
     };
   }
 };
-
 // Pet Actions
 export const createPet = async (data: PetSchema & { userId: string }): Promise<ActionResult> => {
   try {
@@ -63,7 +62,6 @@ export const createPet = async (data: PetSchema & { userId: string }): Promise<A
     return { success: false, error: 'Failed to create pet. Please try again.' };
   }
 };
-
 export const updatePet = async (data: PetSchema & { id: string }): Promise<ActionResult> => {
   try {
     const session = await getServerSession(authOptions);
@@ -104,7 +102,6 @@ export const updatePet = async (data: PetSchema & { id: string }): Promise<Actio
     return { success: false, error: 'Failed to update pet. Please try again.' };
   }
 };
-
 export const deletePet = async (petId: string): Promise<ActionResult> => {
   try {
       const session = await getServerSession(authOptions);
@@ -140,8 +137,7 @@ export const deletePet = async (petId: string): Promise<ActionResult> => {
       console.error(err);
       return { success: false, error: 'Failed to delete pet. Please try again.' };
     }
-  };
-
+};
   // Service Actions
 export const createService = async (
   _: ActionResult,
@@ -163,7 +159,6 @@ export const createService = async (
     return { success: false, error: 'Failed to create service. Please try again.' };
   }
 };
-
 export const updateService = async (
   _: ActionResult,
   formData: FormData
@@ -185,7 +180,6 @@ export const updateService = async (
     return { success: false, error: 'Failed to update service. Please try again.' };
   }
 };
-
 export const deleteService = async (
   _: ActionResult,
   serviceId: number
@@ -200,12 +194,10 @@ export const deleteService = async (
     return { success: false, error: 'Failed to delete service. Please try again.' };
   }
 };
-
 // Veterinarian Actions
 export async function getVeterinarianData(): Promise<Veterinarian | null> {
   return await prisma.veterinarian.findFirst();
 }
-
 export async function getVeterinarians() {
   try {
     const veterinarians = await prisma.veterinarian.findMany({
@@ -229,7 +221,6 @@ export async function getVeterinarians() {
     return [];
   }
 }
-
 export async function updateVeterinarian(formData: FormData) {
   try {
     const id = formData.get('id') as string;
@@ -261,8 +252,6 @@ export async function updateVeterinarian(formData: FormData) {
     return { message: 'Error: ' + error };
   }
 }
-
-
 // Announcement Actions
 export async function getAnnouncements(limit?: number) {
   try {
@@ -281,7 +270,6 @@ export async function getAnnouncements(limit?: number) {
     return [];
   }
 }
-
 export async function createAnnouncement(formData: FormData): Promise<ActionResult> {
   try {
     const session = await getServerSession(authOptions);
@@ -325,7 +313,6 @@ export async function createAnnouncement(formData: FormData): Promise<ActionResu
     };
   }
 }
-
 export async function editAnnouncement(
   id: string,
   formData: FormData
@@ -359,7 +346,6 @@ export async function editAnnouncement(
     return { success: false, error: 'Failed to update announcement' };
   }
 }
-
 export async function deleteAnnouncement(id: string): Promise<ActionResult> {
   try {
     const session = await getServerSession(authOptions);
@@ -379,7 +365,6 @@ export async function deleteAnnouncement(id: string): Promise<ActionResult> {
     return { success: false, error: 'Failed to delete announcement' };
   }
 }
-
 //  Appointment Actions
 export const createAppointment = async (
   _: ActionResult,
@@ -445,7 +430,6 @@ export const createAppointment = async (
     return { success: false, error: 'Failed to create appointment. Please try again.' };
   }
 };
-
 export const updateAppointment = async (
   _: ActionResult,
   formData: FormData
@@ -486,9 +470,6 @@ export const updateAppointment = async (
     return { success: false, error: 'Failed to update appointment. Please try again.' };
   }
 };
-
-
-// delete appointment original
 export const deleteAppointment = async (
   _: ActionResult,
   appointmentId: string
@@ -522,7 +503,6 @@ export const deleteAppointment = async (
     return { success: false, error: 'Failed to delete appointment. Please try again.' };
   }
 };
-
 export async function updateAppointmentStatus(
   _: ActionResult,
   { id, status }: { id: string; status: string }
@@ -593,8 +573,6 @@ export async function fetchAppointments(page: number) {
   return { appointments, count };
 }
 //admins
-
-
 export async function createAppointmentAdmin(formData: FormData) {
   try {
     const userId = formData.get('userId');
@@ -787,7 +765,6 @@ export async function updateMissedAppointments() {
 
   return missedAppointments.length;
 }
-
 export async function getBookedTimes(date: string): Promise<Date[]> {
   try {
     const bookedTimes = await prisma.appointment.findMany({
@@ -805,14 +782,23 @@ export async function getBookedTimes(date: string): Promise<Date[]> {
     return [];
   }
 }
-
 //vaccination
-
 export async function createVaccinationRecord(data: FormData, appointmentId: string) {
   try {
     const formData = Object.fromEntries(data.entries());
     
-    await prisma.vaccination.create({
+    // First verify the appointment exists
+    const appointment = await prisma.appointment.findUnique({
+      where: { id: appointmentId }
+    });
+
+    if (!appointment) {
+      console.error('Appointment not found:', appointmentId);
+      return { success: false, error: 'Appointment not found' };
+    }
+
+    // Create vaccination record
+    const vaccination = await prisma.vaccination.create({
       data: {
         pet: { connect: { id: formData.petId as string} },
         date: new Date(formData.date as string),
@@ -821,26 +807,47 @@ export async function createVaccinationRecord(data: FormData, appointmentId: str
         manufacturer: formData.manufacturer as string,
         weight: parseFloat(formData.weight as string),
         nextDueDate: formData.nextDueDate ? new Date(formData.nextDueDate as string) : null,
-        veterinarian: { connect: { id: formData.veterinarianId as string } },
-        appointments: {
-          connect: { id: appointmentId }
-        }
+        veterinarian: { connect: { id: formData.veterinarianId as string} },
       },
     });
+
+    // Create the junction table record
+    await prisma.appointmentVaccination.create({
+      data: {
+        appointment: { connect: { id: appointmentId } },
+        vaccination: { connect: { id: vaccination.id } }
+      }
+    });
+
     revalidatePath('/list/appointments');
-    return { success: true };
+    return { 
+      success: true,
+      data: {
+        nextDueDate: vaccination.nextDueDate
+      }
+    };
   } catch (error) {
+    console.error('Vaccination Creation Error:', error);
     return { success: false, error: 'Failed to add vaccination record' };
   }
 }
-
 //deworming
-
 export async function createDewormingRecord(data: FormData, appointmentId: string) {
   try {
     const formData = Object.fromEntries(data.entries());
     
-    await prisma.deworming.create({
+    // First verify the appointment exists
+    const appointment = await prisma.appointment.findUnique({
+      where: { id: appointmentId }
+    });
+
+    if (!appointment) {
+      console.error('Appointment not found:', appointmentId);
+      return { success: false, error: 'Appointment not found' };
+    }
+
+    // Create deworming record
+    const deworming = await prisma.deworming.create({
       data: {
         pet: { connect: { id: formData.petId as string} },
         date: new Date(formData.date as string),
@@ -850,20 +857,30 @@ export async function createDewormingRecord(data: FormData, appointmentId: strin
         weight: parseFloat(formData.weight as string),
         nextDueDate: formData.nextDueDate ? new Date(formData.nextDueDate as string) : null,
         veterinarian: { connect: { id: formData.veterinarianId as string } },
-        appointments: {
-          connect: { id: appointmentId }
-        }
       },
     });
+
+    // Create the junction table record
+    await prisma.appointmentDeworming.create({
+      data: {
+        appointment: { connect: { id: appointmentId } },
+        deworming: { connect: { id: deworming.id } }
+      }
+    });
+
     revalidatePath('/list/appointments');
-    return { success: true };
+    return { 
+      success: true,
+      data: {
+        nextDueDate: deworming.nextDueDate
+      }
+    };
   } catch (error) {
+    console.error('Deworming Creation Error:', error);
     return { success: false, error: 'Failed to add deworming record' };
   }
 }
-
 //health record
-
 export async function createHealthRecord(data: FormData, appointmentId: string) {
   try {
     const formData = Object.fromEntries(data.entries());
@@ -895,7 +912,6 @@ export async function createHealthRecord(data: FormData, appointmentId: string) 
     return { success: false, error: 'Failed to add health record' };
   }
 }
-
 export async function createHealthRecordRelation(data: FormData, appointmentId: string) {
   try {
     const formData = Object.fromEntries(data.entries());
@@ -910,7 +926,7 @@ export async function createHealthRecordRelation(data: FormData, appointmentId: 
       return { success: false, error: 'Appointment not found' };
     }
 
-    // Create health record without trying to connect appointment first
+    // Create health record
     const healthRecord = await prisma.healthRecord.create({
       data: {
         petId: formData.petId as string,
@@ -923,13 +939,11 @@ export async function createHealthRecordRelation(data: FormData, appointmentId: 
       },
     });
 
-    // Then update the appointment to connect it to the health record
-    await prisma.appointment.update({
-      where: { id: appointmentId },
+    // Create the junction table record
+    await prisma.appointmentHealthRecord.create({
       data: {
-        healthRecords: {
-          connect: { id: healthRecord.id }
-        }
+        appointment: { connect: { id: appointmentId } },
+        healthRecord: { connect: { id: healthRecord.id } }
       }
     });
 
@@ -941,7 +955,6 @@ export async function createHealthRecordRelation(data: FormData, appointmentId: 
     return { success: false, error: 'Failed to add health record' };
   }
 }
-
 //fetching admin create appointment
 export async function fetchUsers() {
   try {
@@ -966,7 +979,6 @@ export async function fetchUsers() {
     return [];
   }
 }
-
 export async function fetchServices() {
   try {
     const services = await prisma.service.findMany({
@@ -987,7 +999,6 @@ export async function fetchServices() {
     return [];
   }
 }
-
 export async function fetchPetsByUser(userId: string) {
   try {
     const pets = await prisma.pet.findMany({
@@ -1017,4 +1028,100 @@ export async function fetchPetsByUser(userId: string) {
     return [];
   }
 }
+//prescription
+export async function createPrescriptionAction(formData: FormData) {
+  try {
+    console.log('Action - Received FormData:', Object.fromEntries(formData.entries()));
+    
+    const petId = formData.get('petId') as string;
+    const veterinarianId = formData.get('veterinarianId') as string;
+    const appointmentId = formData.get('appointmentId') ? 
+      formData.get('appointmentId') as string : 
+      null;
+    const medications = JSON.parse(formData.get('medications') as string);
+    const status = formData.get('status') as string || 'active';
 
+    // First, get the pet to find its owner
+    const pet = await prisma.pet.findUnique({
+      where: { id: petId },
+      include: { user: true }
+    });
+
+    if (!pet) {
+      throw new Error('Pet not found');
+    }
+
+    const prescription = await prisma.prescription.create({
+      data: {
+        pet: {
+          connect: { id: petId }
+        },
+        veterinarian: {
+          connect: { id: veterinarianId }
+        },
+        user: {
+          connect: { id: pet.userId } // Connect to pet owner's ID
+        },
+        appointment: appointmentId ? {
+          connect: { id: appointmentId }
+        } : undefined,
+        medication: medications,
+        status: status,
+      },
+      include: {
+        pet: true,
+        veterinarian: true,
+        appointment: true,
+        user: true
+      }
+    });
+
+    console.log('Action - Created prescription:', prescription);
+    revalidatePath('/list/prescriptions');
+    return { success: true, data: prescription };
+  } catch (error) {
+    console.error('Error in createPrescriptionAction:', error);
+    return { error: 'An unexpected error occurred' };
+  }
+}
+
+export async function updatePrescriptionStatus(id: string, status: string): Promise<ActionResult> {
+  try {
+    const prescription = await prisma.prescription.update({
+      where: { id },
+      data: { status }
+    });
+    revalidatePath('/list/prescriptions');
+    return { success: true, error: null, data: prescription };
+  } catch (error) {
+    console.error('Error updating prescription status:', error);
+    return { success: false, error: 'Failed to update prescription status' };
+  }
+}
+
+export async function deletePrescription(id: string): Promise<ActionResult> {
+  try {
+    await prisma.prescription.delete({
+      where: { id }
+    });
+    revalidatePath('/list/prescriptions');
+    return { success: true, error: null };
+  } catch (error) {
+    console.error('Error deleting prescription:', error);
+    return { success: false, error: 'Failed to delete prescription' };
+  }
+}
+
+export async function reactivatePrescription(id: string): Promise<ActionResult> {
+  try {
+    const prescription = await prisma.prescription.update({
+      where: { id },
+      data: { status: 'active' }
+    });
+    revalidatePath('/list/prescriptions');
+    return { success: true, error: null, data: prescription };
+  } catch (error) {
+    console.error('Error reactivating prescription:', error);
+    return { success: false, error: 'Failed to reactivate prescription' };
+  }
+}
