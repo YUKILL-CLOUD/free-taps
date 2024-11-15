@@ -11,8 +11,8 @@ const Navbar = () => {
 
   return (
     <>
-      <div className='flex items-center justify-between p-4'>
-        <div className='flex items-center gap-6 justify-end w-full'>
+      <div className='flex items-center justify-between py-1 px-4'>
+        <div className='flex items-center gap-4 justify-end w-full'>
           <div className='flex flex-col'>
             <span className="text-xs leading-3 font-medium">
               {session?.user?.firstName} {session?.user?.lastName}
@@ -24,18 +24,18 @@ const Navbar = () => {
           
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="relative inline-flex items-center justify-center rounded-full w-8 h-8 bg-gradient-to-br from-mainColor-700 to-mainColor-light shadow-md hover:bg-mainColor-Light hover:shadow-lg hover:scale-105 transition-all duration-200"
+            className="relative inline-flex items-center justify-center rounded-full w-7 h-7 bg-gradient-to-br from-mainColor-700 to-mainColor-light shadow-md hover:bg-mainColor-Light hover:shadow-lg hover:scale-105 transition-all duration-200"
           >
             {session?.user?.image ? (
               <Image
                 src={session.user.image}
                 alt="Profile"
-                width={32}
-                height={32}
+                width={28}
+                height={28}
                 className="rounded-full"
               />
             ) : (
-              <span className="text-sm font-medium text-white">
+              <span className="text-xs font-medium text-white">
                 {session?.user?.firstName?.[0]?.toUpperCase()}
               </span>
             )}

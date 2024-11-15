@@ -43,15 +43,15 @@ export function MenuClient({ items, role }: MenuItemProps) {
                 <Link
                   href={item.href}
                   onClick={(e) => handleItemClick(item, e)}
-                  className="flex items-center justify-center lg:justify-start gap-4 text-gray-500 py-2 md:px-2 rounded-md hover:bg-mainColor-Light cursor-pointer"
+                  className="flex items-center justify-start gap-4 text-gray-500 py-2 px-2 rounded-md hover:bg-mainColor-Light cursor-pointer"
                 >
                   <Icon icon={item.icon} width="24" height="24" />
-                  <span className="hidden lg:block">{item.label}</span>
+                  <span className="text-sm">{item.label}</span>
                   <Icon 
                     icon={openMenus[item.label] ? "mdi:chevron-up" : "mdi:chevron-down"} 
                     width="24" 
                     height="24" 
-                    className="hidden lg:block ml-auto"
+                    className="ml-auto"
                   />
                 </Link>
                 {openMenus[item.label] && (
@@ -62,10 +62,10 @@ export function MenuClient({ items, role }: MenuItemProps) {
                         <Link
                           href={subItem.href}
                           key={subItem.label}
-                          className="flex items-center justify-center lg:justify-start gap-4 text-gray-500 py-2 md:px-2 rounded-md hover:bg-mainColor-Light border-b border-gray-200 last:border-b-0"
+                          className="flex items-center justify-start gap-4 text-gray-500 py-2 px-4 rounded-md hover:bg-mainColor-Light border-b border-gray-200 last:border-b-0"
                         >
                           <Icon icon={subItem.icon} width="16" height="16" />
-                          <span className="hidden lg:block">{subItem.label}</span>
+                          <span className="text-sm">{subItem.label}</span>
                         </Link>
                       );
                     })}
@@ -75,10 +75,10 @@ export function MenuClient({ items, role }: MenuItemProps) {
             ) : (
               <Link
                 href={item.href}
-                className="flex items-center justify-center lg:justify-start gap-4 text-gray-500 py-2 md:px-2 rounded-md hover:bg-mainColor-Light"
+                className="flex items-center justify-start gap-4 text-gray-500 py-2 px-2 rounded-md hover:bg-mainColor-Light"
               >
                 <Icon icon={item.icon} width="20" height="20" />
-                <span className="hidden lg:block">{item.label}</span>
+                <span className="text-sm">{item.label}</span>
               </Link>
             )}
           </div>
