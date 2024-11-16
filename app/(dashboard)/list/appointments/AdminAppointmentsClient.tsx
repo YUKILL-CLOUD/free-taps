@@ -249,9 +249,9 @@ export default function AdminAppointmentsClient({
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-3xl font-bold tracking-tight">Appointment Management</h1>
+    <div className="container mx-auto px-2 sm:px-4 lg:px-6 py-4 space-y-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Appointment Management</h1>
         <Button onClick={() => setIsCreateModalOpen(true)}>
           Create Appointment
         </Button>
@@ -263,34 +263,36 @@ export default function AdminAppointmentsClient({
         onFormSubmit={refreshAppointments}
       />
 
-      <Tabs defaultValue="pending" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="pending">
+      <Tabs defaultValue="scheduled" className="w-full space-y-2 sm:space-y-4">
+        <TabsList className="flex flex-wrap md:flex-nowrap w-full">
+          <TabsTrigger value="pending" className="flex-1 text-sm sm:text-base">
             Pending ({counts.pending})
           </TabsTrigger>
-          <TabsTrigger value="scheduled">
+          <TabsTrigger value="scheduled" className="flex-1 text-sm sm:text-base">
             Scheduled ({counts.scheduled})
           </TabsTrigger>
-          <TabsTrigger value="completed">
+          <TabsTrigger value="completed" className="flex-1 text-sm sm:text-base">
             Completed ({counts.completed})
           </TabsTrigger>
-          <TabsTrigger value="missed">
+          <TabsTrigger value="missed" className="flex-1 text-sm sm:text-base">
             Missed ({counts.missed})
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="pending">
           <Card>
-            <CardHeader>
+            <CardHeader className="px-4 sm:px-6">
               <CardTitle>Pending Appointments</CardTitle>
             </CardHeader>
-            <CardContent>
-              <AdminAppointmentTable 
-                appointments={appointments.pending}
-                actions={renderActions}
-                onRecordClick={undefined}
-              />
-              <div className="mt-4">
+            <CardContent className="p-0">
+              <div className="px-4 sm:px-6">
+                <AdminAppointmentTable 
+                  appointments={appointments.pending}
+                  actions={renderActions}
+                  onRecordClick={undefined}
+                />
+              </div>
+              <div className="mt-4 px-4 sm:px-6">
                 <Pagination 
                   page={pages.pending} 
                   count={counts.pending} 
@@ -303,16 +305,18 @@ export default function AdminAppointmentsClient({
 
         <TabsContent value="scheduled">
           <Card>
-            <CardHeader>
+            <CardHeader className="px-4 sm:px-6">
               <CardTitle>Scheduled Appointments</CardTitle>
             </CardHeader>
-            <CardContent>
-              <AdminAppointmentTable 
-                appointments={appointments.scheduled}
-                actions={renderActions}
-                onRecordClick={handleRecordClick}
-              />
-              <div className="mt-4">
+            <CardContent className="p-0 sm:p-6">
+              <div className="overflow-x-auto">
+                <AdminAppointmentTable 
+                  appointments={appointments.scheduled}
+                  actions={renderActions}
+                  onRecordClick={handleRecordClick}
+                />
+              </div>
+              <div className="mt-4 px-4 sm:px-0">
                 <Pagination 
                   page={pages.scheduled} 
                   count={counts.scheduled} 
@@ -325,16 +329,18 @@ export default function AdminAppointmentsClient({
 
         <TabsContent value="completed">
           <Card>
-            <CardHeader>
+            <CardHeader className="px-4 sm:px-6">
               <CardTitle>Completed Appointments</CardTitle>
             </CardHeader>
-            <CardContent>
-              <AdminAppointmentTable 
-                appointments={appointments.completed}
-                actions={renderActions}
-                onRecordClick={undefined}
-              />
-              <div className="mt-4">
+            <CardContent className="p-0 sm:p-6">
+              <div className="overflow-x-auto">
+                <AdminAppointmentTable 
+                  appointments={appointments.completed}
+                  actions={renderActions}
+                  onRecordClick={undefined}
+                />
+              </div>
+              <div className="mt-4 px-4 sm:px-0">
                 <Pagination 
                   page={pages.completed} 
                   count={counts.completed} 
@@ -347,16 +353,18 @@ export default function AdminAppointmentsClient({
 
         <TabsContent value="missed">
           <Card>
-            <CardHeader>
+            <CardHeader className="px-4 sm:px-6">
               <CardTitle>Missed Appointments</CardTitle>
             </CardHeader>
-            <CardContent>
-              <AdminAppointmentTable 
-                appointments={appointments.missed}
-                actions={renderActions}
-                onRecordClick={undefined}
-              />
-              <div className="mt-4">
+            <CardContent className="p-0 sm:p-6">
+              <div className="overflow-x-auto">
+                <AdminAppointmentTable 
+                  appointments={appointments.missed}
+                  actions={renderActions}
+                  onRecordClick={undefined}
+                />
+              </div>
+              <div className="mt-4 px-4 sm:px-0">
                 <Pagination 
                   page={pages.missed} 
                   count={counts.missed} 

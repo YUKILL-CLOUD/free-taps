@@ -104,88 +104,90 @@ export function CreateAppointmentModal({ isOpen, onClose, onFormSubmit }: Create
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95%] max-w-lg">
+      <DialogContent className="w-[95%] max-w-lg max-h-[90vh] md:max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create New Appointment</DialogTitle>
+          <DialogTitle className="text-xl sm:text-2xl">Create New Appointment</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Owner</label>
-            <Select onValueChange={setSelectedUser} value={selectedUser}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select Owner" />
-              </SelectTrigger>
-              <SelectContent>
-                {users.map((user) => (
-                  <SelectItem key={user.id} value={user.id}>
-                    {user.firstName} {user.lastName}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <input type="hidden" name="userId" value={selectedUser} />
-          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Owner</label>
+              <Select onValueChange={setSelectedUser} value={selectedUser}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Owner" />
+                </SelectTrigger>
+                <SelectContent>
+                  {users.map((user) => (
+                    <SelectItem key={user.id} value={user.id}>
+                      {user.firstName} {user.lastName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <input type="hidden" name="userId" value={selectedUser} />
+            </div>
 
-          <div className="space-y-2">
-            <label>Pet</label>
-            <Select name="petId" disabled={!selectedUser}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select Pet" />
-              </SelectTrigger>
-              <SelectContent>
-                {pets.map((pet) => (
-                  <SelectItem key={pet.id} value={pet.id.toString()}>
-                    {pet.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+            <div className="space-y-2">
+              <label>Pet</label>
+              <Select name="petId" disabled={!selectedUser}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Pet" />
+                </SelectTrigger>
+                <SelectContent>
+                  {pets.map((pet) => (
+                    <SelectItem key={pet.id} value={pet.id.toString()}>
+                      {pet.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div className="space-y-2">
-            <label>Service</label>
-            <Select name="serviceId">
-              <SelectTrigger>
-                <SelectValue placeholder="Select Service" />
-              </SelectTrigger>
-              <SelectContent>
-                {services.map((service) => (
-                  <SelectItem key={service.id} value={service.id.toString()}>
-                    {service.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+            <div className="space-y-2">
+              <label>Service</label>
+              <Select name="serviceId">
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Service" />
+                </SelectTrigger>
+                <SelectContent>
+                  {services.map((service) => (
+                    <SelectItem key={service.id} value={service.id.toString()}>
+                      {service.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div className="space-y-2">
-            <label>Date</label>
-            <Input
-              type="date"
-              name="date"
-              min={format(new Date(), 'yyyy-MM-dd')}
-              required
-            />
-          </div>
+            <div className="space-y-2">
+              <label>Date</label>
+              <Input
+                type="date"
+                name="date"
+                min={format(new Date(), 'yyyy-MM-dd')}
+                required
+              />
+            </div>
 
-          <div className="space-y-2">
-            <label>Time</label>
-            <Input
-              type="time"
-              name="time"
-              min="09:00"
-              max="17:00"
-              step="1800"
-              required
-            />
-            <p className="text-sm text-muted-foreground">
-              Available times: 9:00 AM to 5:00 PM
-            </p>
-          </div>
+            <div className="space-y-2">
+              <label>Time</label>
+              <Input
+                type="time"
+                name="time"
+                min="09:00"
+                max="17:00"
+                step="1800"
+                required
+              />
+              <p className="text-sm text-muted-foreground">
+                Available times: 9:00 AM to 5:00 PM
+              </p>
+            </div>
 
-          <Button type="submit" className="w-full">
-            Create Appointment
-          </Button>
+            <Button type="submit" className="w-full">
+              Create Appointment
+            </Button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

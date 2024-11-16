@@ -7,6 +7,7 @@ import { getServerSession } from "next-auth";
 import { PetSchema } from "@/lib/formValidationSchema";
 import { revalidatePath } from "next/cache";
 import { ITEM_PER_PAGE } from "./settings";
+import { sendAppointmentEmail } from "./email";
 
 type ActionResult = {
   success: boolean;
@@ -409,19 +410,20 @@ export const createAppointment = async (
       },
     });
 
-    // if (newAppointment.user.email) {
-    //   await sendAppointmentEmail(
-    //     newAppointment.user.email,
-    //     'created',
-    //     {
-    //       petName: newAppointment.pet.name,
-    //       serviceName: newAppointment.service.name,
-    //       date: newAppointment.date,
-    //       time: newAppointment.time,
-    //       notes: newAppointment.notes,
-    //     }
-    //   );
-    // }
+    if (newAppointment.user.email) {
+      await sendAppointmentEmail(
+        newAppointment.user.email,
+        'created',
+        {
+          appointmentId: newAppointment.id,
+          petName: newAppointment.pet.name,
+          serviceName: newAppointment.service.name,
+          date: newAppointment.date,
+          time: newAppointment.time,
+          notes: newAppointment.notes,
+        }
+      );
+    }
 
     revalidatePath('/appointments');
     return { success: true, error: null, data: newAppointment };
@@ -518,20 +520,39 @@ export async function updateAppointmentStatus(
       },
     });
 
-    // // Send email notification
-    // if (updatedAppointment.user.email) {
-    //   await sendAppointmentEmail(
-    //     updatedAppointment.user.email,
-    //     'status_changed',
-    //     {
-    //       petName: updatedAppointment.pet.name,
-    //       serviceName: updatedAppointment.service.name,
-    //       date: updatedAppointment.date,
-    //       time: updatedAppointment.time,
-    //       status: status,
-    //     }
-    //   );
-    // }
+    // Send email notification
+    if (updatedAppointment.user.email) {
+      // Send confirmation email if status is changed to scheduled
+      if (status === 'scheduled') {
+        await sendAppointmentEmail(
+          updatedAppointment.user.email,
+          'confirmed',
+          {
+            appointmentId: updatedAppointment.id,
+            petName: updatedAppointment.pet.name,
+            serviceName: updatedAppointment.service.name,
+            date: updatedAppointment.date,
+            time: updatedAppointment.time,
+            ownerName: `${updatedAppointment.user.firstName} ${updatedAppointment.user.lastName}`,
+          }
+        );
+      } else {
+        // Send regular status update email for other status changes
+        await sendAppointmentEmail(
+          updatedAppointment.user.email,
+          'status_changed',
+          {
+            petName: updatedAppointment.pet.name,
+            serviceName: updatedAppointment.service.name,
+            date: updatedAppointment.date,
+            time: updatedAppointment.time,
+            appointmentId: updatedAppointment.id,
+            status: status,
+            ownerName: `${updatedAppointment.user.firstName} ${updatedAppointment.user.lastName}`,
+          }
+        );
+      }
+    }
 
     // Add revalidation
     revalidatePath('/appointments');
@@ -601,18 +622,19 @@ export async function createAppointmentAdmin(formData: FormData) {
     });
 
     // Send email notification
-    // if (appointment.user?.email) {
-    //   await sendAppointmentEmail(
-    //     appointment.user.email,
-    //     'created',
-    //     {
-    //       petName: appointment.pet?.name || '',
-    //       serviceName: appointment.service?.name || '',
-    //       date: appointment.date,
-    //       time: appointment.time,
-    //     }
-    //   );
-    // }
+    if (appointment.user?.email) {
+      await sendAppointmentEmail(
+        appointment.user.email,
+        'pre_appointment',
+        {
+          petName: appointment.pet?.name || '',
+          serviceName: appointment.service?.name || '',
+          date: appointment.date,
+          time: appointment.time,
+          appointmentId: appointment.id,
+        }
+      );
+    }
 
     revalidatePath('/list/appointments');
     return { success: true, data: appointment };
@@ -748,19 +770,20 @@ export async function updateMissedAppointments() {
       }),
     ]);
 
-    // // Send missed appointment email
-    // if (appointment.user.email) {
-    //   await sendAppointmentEmail(
-    //     appointment.user.email,
-    //     'missed',
-    //     {
-    //       petName: appointment.pet.name,
-    //       serviceName: appointment.service.name,
-    //       date: appointment.date,
-    //       time: appointment.time,
-    //     }
-    //   );
-    // }
+    // Send missed appointment email
+    if (appointment.user.email) {
+      await sendAppointmentEmail(
+        appointment.user.email,
+        'missed',
+        {
+          petName: appointment.pet.name,
+          serviceName: appointment.service.name,
+          date: appointment.date,
+          time: appointment.time,
+          appointmentId: appointment.id,
+        }
+      );
+    }
   }
 
   return missedAppointments.length;
