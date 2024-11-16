@@ -8,9 +8,10 @@ import { useRouter } from "next/navigation";
 interface MenuItemProps {
   items: any[];
   role: string;
+  closeSidebar: () => void;
 }
 
-export function MenuClient({ items, role }: MenuItemProps) {
+export function MenuClient({ items, role, closeSidebar }: MenuItemProps) {
   const [openMenus, setOpenMenus] = useState<{ [key: string]: boolean }>({});
   const router = useRouter();
 
@@ -18,8 +19,10 @@ export function MenuClient({ items, role }: MenuItemProps) {
     e.preventDefault();
     if (item.href) {
       router.push(item.href);
+      closeSidebar();
     }
-    if (item.submenu) {
+    // Only toggle submenu for admin role
+    if (item.submenu && role === 'admin') {
       toggleMenu(item.label);
     }
   };
@@ -38,7 +41,7 @@ export function MenuClient({ items, role }: MenuItemProps) {
 
         return (
           <div key={item.label}>
-            {item.submenu ? (
+            {item.submenu && role === 'admin' ? (
               <div className="relative">
                 <Link
                   href={item.href}
@@ -75,6 +78,10 @@ export function MenuClient({ items, role }: MenuItemProps) {
             ) : (
               <Link
                 href={item.href}
+                onClick={() => {
+                  router.push(item.href);
+                  closeSidebar();
+                }}
                 className="flex items-center justify-start gap-4 text-gray-500 py-2 px-2 rounded-md hover:bg-mainColor-Light"
               >
                 <Icon icon={item.icon} width="20" height="20" />

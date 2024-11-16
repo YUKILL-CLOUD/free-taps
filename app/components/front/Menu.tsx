@@ -1,7 +1,7 @@
 'use client'
 import { useSession } from "next-auth/react";
 import { MenuClient } from "./MenuClient";
-
+import { useSidebar } from "./SidebarContext";
 const menuItems = [
   {
     title: "MENU",
@@ -127,6 +127,7 @@ const menuItems = [
 
 const Menu = () => {
   const { data: session } = useSession();
+  const { closeSidebar } = useSidebar();
   const role = session?.user?.role;
 
   return (
@@ -136,7 +137,11 @@ const Menu = () => {
           <span className="hidden lg:block text-gray-400 font-light my-4">
             {section.title}
           </span>
-          <MenuClient items={section.items} role={role || ""} />
+          <MenuClient 
+            items={section.items} 
+            role={role || ""} 
+            closeSidebar={closeSidebar}
+          />
         </div>
       ))}
     </div>
