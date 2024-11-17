@@ -23,64 +23,68 @@ type AdminAppointmentTableProps = {
 export function AdminAppointmentTable({ appointments, actions, onRecordClick }: AdminAppointmentTableProps) {
   return (
     <div className="w-full border rounded-md">
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader className="bg-muted/50">
-            <TableRow>
-              <TableHead className="min-w-[100px]">Pet</TableHead>
-              <TableHead className="min-w-[120px]">Owner</TableHead>
-              <TableHead className="min-w-[120px]">Service</TableHead>
-              <TableHead className="min-w-[100px]">Record Type</TableHead>
-              <TableHead className="min-w-[100px]">Date</TableHead>
-              <TableHead className="min-w-[80px]">Time</TableHead>
-              <TableHead className="min-w-[80px]">Status</TableHead>
-              <TableHead className="min-w-[60px] text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {appointments.map((appointment) => {
-              const recordType = getRecordType(appointment.service.name);
-              const isScheduled = appointment.status === 'scheduled';
-              return (
-                <TableRow key={appointment.id} className="hover:bg-muted/50">
-                  <TableCell className="font-medium">
-                    {appointment.pet.name}
-                  </TableCell>
-                  <TableCell>
-                    {appointment.user.firstName} {appointment.user.lastName}
-                  </TableCell>
-                  <TableCell>
-                    {appointment.service.name}
-                  </TableCell>
-                  <TableCell>
-                    {recordType !== '-' && isScheduled && onRecordClick && (
-                      <Button
-                        variant="link"
-                        className="p-0 h-auto font-normal"
-                        onClick={() => onRecordClick(recordType, appointment)}
-                      >
-                        {recordType}
-                      </Button>
-                    )}
-                    {recordType === '-' && recordType}
-                  </TableCell>
-                  <TableCell>
-                    {format(new Date(appointment.date), 'MMM dd, yyyy')}
-                  </TableCell>
-                  <TableCell>
-                    {format(new Date(appointment.time), 'hh:mm a')}
-                  </TableCell>
-                  <TableCell>
-                    <StatusBadge status={appointment.status} />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {actions(appointment)}
-                  </TableCell>
+      <div className="max-w-full overflow-hidden">
+        <div className="overflow-x-auto">
+          <div className="inline-block min-w-full align-middle">
+            <Table>
+              <TableHeader className="bg-muted/50">
+                <TableRow>
+                  <TableHead className="w-[100px] whitespace-nowrap">Pet</TableHead>
+                  <TableHead className="w-[120px] whitespace-nowrap">Owner</TableHead>
+                  <TableHead className="w-[120px] whitespace-nowrap">Service</TableHead>
+                  <TableHead className="w-[100px] whitespace-nowrap">Record Type</TableHead>
+                  <TableHead className="w-[100px] whitespace-nowrap">Date</TableHead>
+                  <TableHead className="w-[80px] whitespace-nowrap">Time</TableHead>
+                  <TableHead className="w-[80px] whitespace-nowrap">Status</TableHead>
+                  <TableHead className="w-[60px] text-right whitespace-nowrap">Actions</TableHead>
                 </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+              </TableHeader>
+              <TableBody>
+                {appointments.map((appointment) => {
+                  const recordType = getRecordType(appointment.service.name);
+                  const isScheduled = appointment.status === 'scheduled';
+                  return (
+                    <TableRow key={appointment.id} className="hover:bg-muted/50">
+                      <TableCell className="whitespace-nowrap">
+                        {appointment.pet.name}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {appointment.user.firstName} {appointment.user.lastName}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {appointment.service.name}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {recordType !== '-' && isScheduled && onRecordClick && (
+                          <Button
+                            variant="link"
+                            className="p-0 h-auto font-normal"
+                            onClick={() => onRecordClick(recordType, appointment)}
+                          >
+                            {recordType}
+                          </Button>
+                        )}
+                        {recordType === '-' && recordType}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {format(new Date(appointment.date), 'MMM dd, yyyy')}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {format(new Date(appointment.time), 'hh:mm a')}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        <StatusBadge status={appointment.status} />
+                      </TableCell>
+                      <TableCell className="text-right whitespace-nowrap">
+                        {actions(appointment)}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
       </div>
     </div>
   );

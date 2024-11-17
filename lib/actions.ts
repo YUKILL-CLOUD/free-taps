@@ -1148,3 +1148,62 @@ export async function reactivatePrescription(id: string): Promise<ActionResult> 
     return { success: false, error: 'Failed to reactivate prescription' };
   }
 }
+
+
+export const fetchActivities = async (userId: string) => {
+  try {
+    const [appointments, pets, healthRecords] = await Promise.all([
+      prisma.appointment.findMany({
+        where: { userId },
+        orderBy: { date: 'desc' },
+        take: 5,
+        include: {
+          pet: true,
+          service: true,
+        },
+      }),
+      prisma.pet.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+      }),
+      prisma.healthRecord.findMany({
+        where: {
+          pet: {
+            userId,
+          },
+        },
+        include: {
+          pet: true,
+        },
+        orderBy: { date: 'desc' },
+        take: 5,
+      }),
+    ]);
+
+    return [
+      ...appointments.map(apt => ({
+        id: `apt-${apt.id}`,
+        date: apt.date.toISOString(),
+        description: `Appointment for ${apt.pet.name} - ${apt.service.name}`,
+        type: 'appointment'
+      })),
+      ...pets.map(pet => ({
+        id: `pet-${pet.id}`,
+        date: pet.createdAt.toISOString(),
+        description: `Added new pet: ${pet.name}`,
+        type: 'pet'
+      })),
+      ...healthRecords.map(record => ({
+        id: `health-${record.id}`,
+        date: record.date.toISOString(),
+        description: `Health record updated for ${record.pet.name}`,
+        type: 'health'
+      }))
+    ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+     .slice(0, 10);
+  } catch (error) {
+    console.error('Error fetching activities:', error);
+    return [];
+  }
+};
