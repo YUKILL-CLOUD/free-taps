@@ -432,6 +432,70 @@ export const createAppointment = async (
     return { success: false, error: 'Failed to create appointment. Please try again.' };
   }
 };
+
+export const createAppointmentsAdmin = async (
+  formData: FormData
+): Promise<ActionResult> => {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || session.user.role !== 'admin') {
+      return { success: false, error: 'Only admins can perform this action' };
+    }
+
+    const data = Object.fromEntries(formData.entries());
+    const date = new Date(data.date as string);
+    const [hours, minutes] = (data.time as string).split(':');
+    date.setHours(parseInt(hours, 10), parseInt(minutes, 10));
+
+    const existingAppointment = await prisma.appointment.findFirst({
+      where: {
+        date: date,
+        time: date,
+      },
+    });
+
+    if (existingAppointment) {
+      return { success: false, error: 'This time slot has just been booked. Please choose another time.' };
+    }
+
+    const newAdminAppointment = await prisma.appointment.create({
+      data: {
+        userId: data.userId as string,
+        petId: data.petId as string,
+        serviceId: data.serviceId as string,
+        date: date,
+        time: date,
+        status: "scheduled",
+      },
+      include: {
+        pet: true,
+        service: true,
+        user: true,
+      },
+    });
+
+    if (newAdminAppointment.user.email) {
+      await sendAppointmentEmail(
+        newAdminAppointment.user.email,
+        'created',
+        {
+          appointmentId: newAdminAppointment.id,
+          petName: newAdminAppointment.pet.name,
+          serviceName: newAdminAppointment.service.name,
+          date: newAdminAppointment.date,
+          time: newAdminAppointment.time,
+        }
+      );
+    }
+
+    revalidatePath('/appointments');
+    return { success: true, error: null, data: newAdminAppointment };
+  } catch (err) {
+    console.error("Error creating appointment:", err);
+    return { success: false, error: 'Failed to create appointment. Please try again.' };
+  }
+};
+
 export const updateAppointment = async (
   _: ActionResult,
   formData: FormData
@@ -790,15 +854,36 @@ export async function updateMissedAppointments() {
 }
 export async function getBookedTimes(date: string): Promise<Date[]> {
   try {
+    const selectedDate = new Date(date);
+    // Set time to start of day
+    selectedDate.setHours(0, 0, 0, 0);
+    
+    const nextDate = new Date(selectedDate);
+    nextDate.setDate(nextDate.getDate() + 1);
+
     const bookedTimes = await prisma.appointment.findMany({
       where: {
-        date: new Date(date),
+        AND: [
+          {
+            date: {
+              gte: selectedDate,
+              lt: nextDate
+            }
+          },
+          {
+            status: {
+              in: ['scheduled', 'pending']
+            }
+          }
+        ]
       },
       select: {
+        date: true,
         time: true,
       },
     });
 
+    console.log('Database booked times:', bookedTimes); // Debug log
     return bookedTimes.map(appointment => appointment.time);
   } catch (error) {
     console.error('Error fetching booked times:', error);

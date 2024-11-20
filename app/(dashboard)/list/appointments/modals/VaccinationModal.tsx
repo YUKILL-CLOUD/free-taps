@@ -51,26 +51,21 @@ export function VaccinationModal({ isOpen, onClose, appointment, onFormSubmit, r
           
           // Then create next scheduled appointment if there's a next due date
           if (result.data?.nextDueDate) {
-            const nextAppointmentData = new FormData();
-            nextAppointmentData.append('userId', appointment.userId);
-            nextAppointmentData.append('petId', appointment.petId);
-            nextAppointmentData.append('serviceId', appointment.serviceId);
-            nextAppointmentData.append('date', new Date(result.data.nextDueDate).toISOString().split('T')[0]);
-            nextAppointmentData.append('time', '09:00');
-            nextAppointmentData.append('status', 'pending');
-
             try {
-              console.log('Creating follow-up appointment with data:', {
-                userId: appointment.userId,
-                petId: appointment.petId,
-                serviceId: appointment.serviceId,
-                date: new Date(result.data.nextDueDate).toISOString().split('T')[0],
-                time: '09:00',
-                status: 'pending'
-              });
+              // Create a proper date object for the next appointment
+              const nextDate = new Date(result.data.nextDueDate);
+              const [hours, minutes] = '09:00'.split(':');
+              nextDate.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+
+              const nextAppointmentData = new FormData();
+              nextAppointmentData.append('userId', appointment.userId);
+              nextAppointmentData.append('petId', appointment.petId);
+              nextAppointmentData.append('serviceId', appointment.serviceId);
+              nextAppointmentData.append('date', nextDate.toISOString());
+              nextAppointmentData.append('time', nextDate.toISOString());
+              nextAppointmentData.append('status', 'pending');
 
               const appointmentResult = await createAppointmentAdmin(nextAppointmentData);
-              console.log('Appointment creation result:', appointmentResult);
 
               if (appointmentResult.success) {
                 // Update the status to scheduled after creation

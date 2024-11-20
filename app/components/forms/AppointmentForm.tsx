@@ -59,9 +59,20 @@ export function AppointmentForm({ pets, services, onClose, onAppointmentCreated 
   const searchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (selectedDate) {
-      getBookedTimes(selectedDate).then(setBookedTimes);
-    }
+    const loadBookedTimes = async () => {
+      if (!selectedDate) return;
+      
+      try {
+        const bookedTimesData = await getBookedTimes(selectedDate);
+        console.log('Booked times:', bookedTimesData); // Debug log
+        setBookedTimes(bookedTimesData.map(time => new Date(time)));
+      } catch (error) {
+        console.error('Error loading booked times:', error);
+        toast.error('Failed to load booked time slots');
+      }
+    };
+
+    loadBookedTimes();
   }, [selectedDate]);
 
   useEffect(() => {
@@ -120,20 +131,28 @@ export function AppointmentForm({ pets, services, onClose, onAppointmentCreated 
   };
 
   const isTimeBooked = (time: string) => {
-    const [hours, minutes] = time.split(':');
-    let hourNum = parseInt(hours, 10);
-    const period = time.slice(-2).toLowerCase();
+    if (!selectedDate || !bookedTimes.length) return false;
+
+    const [timeStr, period] = time.split(' ');
+    const [hours, minutes] = timeStr.split(':');
+    let hour = parseInt(hours);
     
-    if (period === 'pm' && hourNum !== 12) {
-      hourNum += 12;
-    } else if (period === 'am' && hourNum === 12) {
-      hourNum = 0;
+    // Convert to 24-hour format
+    if (period.toUpperCase() === 'PM' && hour !== 12) {
+      hour += 12;
+    } else if (period.toUpperCase() === 'AM' && hour === 12) {
+      hour = 0;
     }
-    
-    return bookedTimes.some(bookedTime => 
-      bookedTime.getHours() === hourNum && 
-      bookedTime.getMinutes() === parseInt(minutes, 10)
-    );
+
+    // Create a date object for comparison
+    const timeToCheck = new Date(selectedDate);
+    timeToCheck.setHours(hour, parseInt(minutes), 0, 0);
+
+    return bookedTimes.some(bookedTime => {
+      const bookedDateTime = new Date(bookedTime);
+      return bookedDateTime.getHours() === timeToCheck.getHours() && 
+             bookedDateTime.getMinutes() === timeToCheck.getMinutes();
+    });
   };
 
   const filteredPets = pets.filter(pet =>
