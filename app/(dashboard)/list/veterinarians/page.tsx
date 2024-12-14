@@ -18,14 +18,18 @@ export default function VeterinarianPage() {
 
     const fetchVeterinarianData = async () => {
         const data = await getVeterinarianData();
+        if (!data) {
+            toast.error("Veterinarian not found.");
+            return;
+        }
         setVeterinarian(data);
     };
 
     const onSubmit = async (formData: FormData) => {
         const result = await updateVeterinarian(formData);
-        if (result.message) {
-            toast.success("Veterinarian information updated successfully!");
-            fetchVeterinarianData();
+        if (result && result.message) {
+            toast.success(result.message);
+            await fetchVeterinarianData();
             setIsEditing(false);
         } else {
             toast.error(result.message || "Failed to update veterinarian information");

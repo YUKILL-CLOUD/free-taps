@@ -8,6 +8,7 @@ import { PetSchema } from "@/lib/formValidationSchema";
 import { revalidatePath } from "next/cache";
 import { ITEM_PER_PAGE } from "./settings";
 import { sendAppointmentEmail } from "./email";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 type ActionResult = {
   success: boolean;
@@ -224,7 +225,7 @@ export async function getVeterinarians() {
 }
 export async function updateVeterinarian(formData: FormData) {
   try {
-    const id = formData.get('id') as string;
+    const id = formData.get('id') as string; // Get the veterinarian ID from the form data
     const data = {
       name: formData.get('name') as string,
       specialization: formData.get('specialization') as string,
@@ -235,31 +236,35 @@ export async function updateVeterinarian(formData: FormData) {
       tinNo: formData.get('tinNo') as string,
     };
 
+    // Ensure the ID is provided for updating
     if (!id) {
-      // Create new veterinarian if no ID
-      await prisma.veterinarian.create({
-        data
-      });
-    } else {
-      // Update existing veterinarian if ID exists
-      await prisma.veterinarian.update({
-        where: { id },
-        data
-      });
+      return { message: 'Error: ID is required to update a veterinarian.' };
     }
 
-      return {message: 'Success'};
+    // Update existing veterinarian if ID exists
+    const updatedVeterinarian = await prisma.veterinarian.update({
+      where: { id },
+      data,
+    });
+
+    return { message: 'Success', updatedVeterinarian }; // Return success message and updated data
   } catch (error) {
-    return { message: 'Error: ' + error };
-  }
+    console.error('Error updating veterinarian:', error);
+    if (error instanceof PrismaClientKnownRequestError) {
+        return { message: 'Database error occurred while updating.' };
+    }
+    return { message: 'Error: ' + (error as Error).message };
+}
 }
 // Announcement Actions
 export async function getAnnouncements(limit?: number) {
   try {
+    // First, clean up expired announcements
+    await deleteExpiredAnnouncements();
+
     const announcements = await prisma.announcement.findMany({
       where: {
         status: "active",
-        endDate: { gte: new Date() },
       },
       orderBy: { createdAt: "desc" },
       take: limit,
@@ -364,6 +369,30 @@ export async function deleteAnnouncement(id: string): Promise<ActionResult> {
   } catch (err) {
     console.error("Error deleting announcement:", err);
     return { success: false, error: 'Failed to delete announcement' };
+  }
+}
+export async function deleteExpiredAnnouncements() {
+  try {
+    const now = new Date();
+    
+    // Delete announcements that have passed their end date
+    const deletedAnnouncements = await prisma.announcement.deleteMany({
+      where: {
+        endDate: {
+          lt: now
+        }
+      }
+    });
+
+    if (deletedAnnouncements.count > 0) {
+      revalidatePath('/list/announcements');
+      revalidatePath('/user');
+    }
+
+    return deletedAnnouncements.count;
+  } catch (error) {
+    console.error("Error deleting expired announcements:", error);
+    return 0;
   }
 }
 //  Appointment Actions

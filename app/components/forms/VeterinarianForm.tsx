@@ -8,6 +8,7 @@ import { Veterinarian } from "@prisma/client";
 import InputField from "../front/InputField";
 
 const veterinarianSchema = z.object({
+  id: z.string().optional(), // Optional since it may not be present when adding a new veterinarian
   name: z.string().min(1, "Name is required"),
   specialization: z.string().min(1, "Specialization is required"),
   phone: z.string().min(1, "Phone number is required"),
@@ -56,6 +57,19 @@ export function VeterinarianForm({ initialData, onSubmit, onClose }: Veterinaria
     <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
       <h2 className="text-2xl font-bold mb-6">Edit Veterinarian Information</h2>
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+
+      {initialData?.id && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700">ID:</label>
+            <input
+              type="text"
+              value={initialData.id}
+              readOnly
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+        )}
+
         <InputField
           label="Name"
           {...register("name")}
@@ -99,12 +113,12 @@ export function VeterinarianForm({ initialData, onSubmit, onClose }: Veterinaria
           register={register}
         />
         <div className="flex justify-between">
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          <button 
+            type="submit" 
+            disabled={isSubmitting} 
+            className={`py-2 px-4 rounded ${isSubmitting ? 'bg-gray-300' : 'bg-blue-600 hover:bg-blue-700 text-white font-bold'}`}
           >
-            {isSubmitting ? "Updating..." : "Update Veterinarian Information"}
+            {initialData ? 'Update Veterinarian' : 'Add Veterinarian'}
           </button>
           <button
             type="button"
@@ -114,6 +128,13 @@ export function VeterinarianForm({ initialData, onSubmit, onClose }: Veterinaria
             Cancel
           </button>
         </div>
+        {Object.keys(errors).length > 0 && (
+          <div className="text-red-600 mt-4">
+            {Object.values(errors).map((error) => (
+              <p key={error.message}>{error.message}</p>
+            ))}
+          </div>
+        )}
       </form>
     </div>
   );
