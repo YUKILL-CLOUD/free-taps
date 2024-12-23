@@ -8,9 +8,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
+
 const PetForm = dynamic(() => import("../forms/PetForm"), {
   loading: () => <h1>Loading...</h1>,   
 });
+
 
 const FormModal = ({
   table,
@@ -64,16 +66,18 @@ const FormModal = ({
           </button>
         </form>
       );
-    } else if (type === "create" || type === "update") {
+    } else {
       return (
-        <PetForm type={type} data={data} onSubmitSuccess={() => {
-          setOpen(false); // Close modal on success
-          if (onSubmitSuccess) onSubmitSuccess(); // Call success callback
-        }} />
+        <PetForm 
+          type={type} 
+          data={data}
+          onSubmitSuccess={() => {
+            setOpen(false);
+            if (onSubmitSuccess) onSubmitSuccess();
+          }} 
+        />
       );
     }
-    
-    return <div>Form not found!</div>;
   };
 
   return (

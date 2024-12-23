@@ -80,7 +80,6 @@ export const updatePet = async (data: PetSchema & { id: string }): Promise<Actio
       return { success: false, error: 'Pet not found' };
     }
 
-    // Check if user is admin or pet owner
     if (session.user.role !== 'admin' && pet.userId !== session.user.id) {
       return { success: false, error: 'Unauthorized to update this pet' };
     }
@@ -94,10 +93,11 @@ export const updatePet = async (data: PetSchema & { id: string }): Promise<Actio
         img: data.img || null,
         bloodType: data.bloodType,
         sex: data.sex,
-        birthday: data.birthday,
+        birthday: data.birthday ? new Date(data.birthday) : pet.birthday,
       },
     });
 
+    revalidatePath('/list/pets');
     return { success: true, error: null, data: updatedPet };
   } catch (err) {
     console.error("Error updating pet:", err);

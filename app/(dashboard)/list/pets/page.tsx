@@ -11,6 +11,8 @@ import FormModal from "@/app/components/front/FormModal";
 import TableSearch from "@/app/components/front/TableSearch";
 import Table from "@/app/components/front/Table";
 import { Icon } from "@iconify/react/dist/iconify.js";
+import UpdatePetModal from "@/app/components/front/UpdatePetModal";
+import DeletePetModal from "@/app/components/front/DeletePetModal";
 
 type PetList = Pet & {Appointments:Appointment[]} & {healthRecords:HealthRecord[]} & {user:User}
 
@@ -93,16 +95,12 @@ const renderRow = (item: PetList) => (
       <td>
         <div className="flex items-center gap-2">
           <Link href={`/list/pets/${item.id}`}>
-          <Button variant="ghost" size="sm">
-            <Eye className="w-5 h-5 text-blue-500" />
-          </Button>
+            <Button variant="ghost" size="sm">
+              <Eye className="w-5 h-5 text-blue-500" />
+            </Button>
           </Link>
-            <FormModal table="pet" type="update" data={item} trigger={
-              <Button variant="ghost" size="sm">
-                <Pencil className="w-5 h-5 text-green-500" />
-              </Button>
-            }
-          />
+          {/* <UpdatePetModal data={item} /> */}
+          <DeletePetModal id={item.id} />
         </div>
       </td>
     </tr>

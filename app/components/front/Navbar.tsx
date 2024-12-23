@@ -15,10 +15,10 @@ const Navbar = () => {
         <div className='flex items-center gap-4 justify-end w-full'>
           <div className='flex flex-col'>
             <span className="text-xs leading-3 font-medium">
-              {session?.user?.firstName} {session?.user?.lastName}
+              {session?.user?.firstName.toLocaleUpperCase()} {session?.user?.lastName.toLocaleUpperCase()}
             </span>
             <span className="text-[10px] text-gray-500 text-right">
-              {session?.user?.role}
+              {session?.user?.role.toUpperCase()}
             </span>
           </div>
           
@@ -45,10 +45,10 @@ const Navbar = () => {
 
       {/* Profile Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4 mt-12 box-shadow-2xl shadow-mainColor-700">
           <div className="bg-white rounded-lg p-6 w-96 relative max-h-[90vh] overflow-y-auto my-auto">
             <button 
-              onClick={() => setIsModalOpen(false)}
+              onClick={() => setIsModalOpen(false)} 
               className="absolute top-4 right-4"
             >
               <XMarkIcon className="h-6 w-6 text-gray-400 hover:text-gray-600" />
@@ -62,9 +62,9 @@ const Navbar = () => {
             </div>
 
             <div className="space-y-4">
-              <p><span className="font-medium">Name:</span> {session?.user?.firstName} {session?.user?.lastName}</p>
+              <p><span className="font-medium">Name:</span> {session?.user?.firstName.toUpperCase()} {session?.user?.lastName.toUpperCase()}</p>
               <p><span className="font-medium">Email:</span> {session?.user?.email}</p>
-              <p><span className="font-medium">Role:</span> {session?.user?.role}</p>
+              <p><span className="font-medium">Role:</span> {session?.user?.role.toUpperCase()}</p>
             </div>
 
             <div className="mt-6">

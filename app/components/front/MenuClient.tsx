@@ -16,7 +16,6 @@ export function MenuClient({ items, role, closeSidebar }: MenuItemProps) {
   const router = useRouter();
 
   const handleItemClick = (item: any, e: React.MouseEvent) => {
-    e.preventDefault();
     if (item.href) {
       router.push(item.href);
       closeSidebar();
@@ -25,6 +24,12 @@ export function MenuClient({ items, role, closeSidebar }: MenuItemProps) {
     if (item.submenu && role === 'admin') {
       toggleMenu(item.label);
     }
+  };
+  
+  const handleChevronClick = (e: React.MouseEvent, label: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleMenu(label);
   };
 
   const toggleMenu = (label: string) => {
@@ -46,16 +51,20 @@ export function MenuClient({ items, role, closeSidebar }: MenuItemProps) {
                 <Link
                   href={item.href}
                   onClick={(e) => handleItemClick(item, e)}
-                  className="flex items-center justify-start gap-4 text-gray-500 py-2 px-2 rounded-md hover:bg-mainColor-Light cursor-pointer"
+                  className="flex items-center justify-start gap-4 text-gray-500 py-2 px-2 rounded-md hover:bg-mainColor-light hover:text-mainColor transition-colors duration-200 cursor-pointer"
                 >
                   <Icon icon={item.icon} width="24" height="24" />
                   <span className="text-sm">{item.label}</span>
-                  <Icon 
-                    icon={openMenus[item.label] ? "mdi:chevron-up" : "mdi:chevron-down"} 
-                    width="24" 
-                    height="24" 
-                    className="ml-auto"
-                  />
+                  <div 
+                    onClick={(e) => handleChevronClick(e, item.label)}
+                    className="ml-auto cursor-pointer"
+                  >
+                    <Icon 
+                      icon={openMenus[item.label] ? "mdi:chevron-up" : "mdi:chevron-down"} 
+                      width="24" 
+                      height="24" 
+                    />
+                  </div>
                 </Link>
                 {openMenus[item.label] && (
                   <div className="mt-2 bg-gray-50 border-b border-gray-200 rounded-b-md">
@@ -65,7 +74,7 @@ export function MenuClient({ items, role, closeSidebar }: MenuItemProps) {
                         <Link
                           href={subItem.href}
                           key={subItem.label}
-                          className="flex items-center justify-start gap-4 text-gray-500 py-2 px-4 rounded-md hover:bg-mainColor-Light border-b border-gray-200 last:border-b-0"
+                          className="flex items-center justify-start gap-4 text-gray-500 py-2 px-4 rounded-md hover:bg-mainColor-light hover:text-mainColor transition-colors duration-200 border-b border-gray-200 last:border-b-0"
                         >
                           <Icon icon={subItem.icon} width="16" height="16" />
                           <span className="text-sm">{subItem.label}</span>
@@ -82,7 +91,7 @@ export function MenuClient({ items, role, closeSidebar }: MenuItemProps) {
                   router.push(item.href);
                   closeSidebar();
                 }}
-                className="flex items-center justify-start gap-4 text-gray-500 py-2 px-2 rounded-md hover:bg-mainColor-Light"
+                className="flex items-center justify-start gap-4 text-gray-500 py-2 px-2 rounded-md hover:bg-mainColor-light hover:text-mainColor transition-colors duration-200"
               >
                 <Icon icon={item.icon} width="20" height="20" />
                 <span className="text-sm">{item.label}</span>

@@ -38,7 +38,9 @@ function DashboardLayoutContent({
         className={cn(
           "fixed top-0 left-0 h-full bg-white z-40 transition-all duration-300",
           "w-[50%] md:w-[22%] lg:w-12% xl:w-10%] p-4",
-          !isOpen && "-translate-x-full"
+          !isOpen && "-translate-x-full",
+          "shadow-[4px_0_6px_-1px_rgba(0,0,0,0.1)]",
+          "rounded-tr-2xl rounded-br-2xl"
         )}
       >
         <button
@@ -51,6 +53,7 @@ function DashboardLayoutContent({
             height={32}
             className="text-primary"
           />
+            <span className="block font-bold text-sm text-gray-700">Tapales</span>
         </button>
         <Menu />
       </div>
@@ -62,21 +65,27 @@ function DashboardLayoutContent({
       )}>
         {/* Sticky Navbar */}
         <div className="sticky top-0 z-30 backdrop-blur-sm bg-white/70 border-b border-mainColor-100/20 shadow-sm">
-          <div className="flex items-center justify-between py-2 px-4 bg-gradient-to-t from-mainColor-50/30 to-transparent">
+          <div className="flex items-center  space-x-1.5 justify-between py-2 px-4 bg-gradient-to-t from-mainColor-50/30 to-transparent">
             {!isOpen && (
               <button
                 onClick={toggleSidebar}
-                className="w-auto flex items-center justify-center lg:justify-start gap-2 hover:bg-mainColor-50/50 rounded-lg p-1 transition-all duration-200"
+                className="w-auto flex items-center justify-center lg:justify-start gap-2 hover:bg-mainColor-50 rounded-lg p-1 transition-all duration-200"
               >
                 <Icon 
+                  icon="iconamoon:menu-burger-horizontal-bold" 
+                  width={28}
+                  height={28}
+                  className="text-primary"
+                />
+              </button>
+            )}
+             <Icon 
                   icon="tabler:paw-filled" 
                   width={28}
                   height={28}
                   className="text-primary"
                 />
                 <span className="block font-bold text-sm text-gray-700">Tapales</span>
-              </button>
-            )}
             <div className="flex-1 flex justify-end">
               <Navbar />
             </div>
