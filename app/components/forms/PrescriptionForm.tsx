@@ -51,7 +51,7 @@ type PrescriptionFormProps = {
   preSelectedPetId?: string;
   appointments?: any[] | null;
   userId: string;
-  onSubmit: (formData: FormData) => Promise<void>;
+  onSubmit?: (formData: FormData) => Promise<void>;
   defaultValues?: {
     petId?: string;
     date?: Date;
