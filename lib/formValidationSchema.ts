@@ -1,9 +1,11 @@
 import { z } from "zod";
 
+
+
 export const petSchema = z.object({
   id: z.number().optional(),
   name: z.string().min(1, { message: "Pet name is required!" }),
-  type: z.enum(["Dog", "Cat"], { message: "Type must be either dog or cat!" }),
+  type: z.enum(["Dog", "Cat", "Fish", "Bird", "Reptile", "Rabbit", "Rodent", "Others"], { message: "Type must be either of the choices!" }),
   breed: z.string().min(3, { message: "Breed must be at least 3 characters long!" }),
   bloodType: z.string().min(1, { message: "Blood Type is required!" }),
   birthday: z.coerce.date()
@@ -16,7 +18,7 @@ export const petSchema = z.object({
   .refine((date) => date >= new Date(1900, 0, 1), {
     message: "Birthday must be after January 1, 1900",
   }),
-  sex: z.enum(["male", "female"], { message: "Sex must be either male or female!" }),
+  sex: z.enum(["Male", "Female"], { message: "Sex must be either male or female!" }),
   img: z.string().url().optional().nullable(),
 });
   

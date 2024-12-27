@@ -106,13 +106,7 @@ export default async function HealthRecordPage({
             Back to Pet Details
           </button>
         </Link>
-        {(isAdmin) && (
-          <Link href={`/list/pets/${healthRecord.petId}/petHealthRecord/${healthRecord.id}/edit`}>
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition duration-200">
-                  Edit Health Record
-            </button>
-        </Link>
-        )}
+        
       </div>
     </div>
   );

@@ -132,7 +132,7 @@ const BigCalendar = ({ events }: BigCalendarProps) => {
       events={events}
       startAccessor="start"
       endAccessor="end"
-      views={["month", "week", "day"]}
+      views={["month"]}
       view={view}
       date={date}
       onView={handleOnChangeView}

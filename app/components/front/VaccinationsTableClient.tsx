@@ -45,10 +45,10 @@ export function VaccinationsTableClient({
             <tr>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vaccine Name</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Medicine Name</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Manufacturer</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Weight (kg)</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Next Due Date</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Medicine Name</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Manufacturer</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Weight (kg)</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Next Due Date</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
@@ -57,10 +57,10 @@ export function VaccinationsTableClient({
               <tr key={vaccination.id}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(vaccination.date).toISOString().split('T')[0]}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{truncateText(vaccination.vaccineName, 20)}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{truncateText(vaccination.medicineName, 20)}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{truncateText(vaccination.manufacturer, 20)}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{vaccination.weight.toFixed(2)}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">{truncateText(vaccination.medicineName, 20)}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">{truncateText(vaccination.manufacturer, 20)}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">{vaccination.weight.toFixed(2)}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
                   {vaccination.nextDueDate ? new Date(vaccination.nextDueDate).toISOString().split('T')[0] : 'N/A'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -70,11 +70,11 @@ export function VaccinationsTableClient({
                         <Icon icon="mdi:eye" width="20" height="20" />
                       </button>
                     </Link>
-                    <Link href={`/list/pets/${petId}/petVaccination/${vaccination.id}/edit`}>
+                    {/* <Link href={`/list/pets/${petId}/petVaccination/${vaccination.id}/edit`}>
                       <button className="text-green-600 hover:text-green-900">
                         <Icon icon="mdi:pencil" width="20" height="20" />
                       </button>
-                    </Link>
+                    </Link> */}
                   </div>
                 </td>
               </tr>

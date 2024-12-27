@@ -264,7 +264,7 @@ export default function AdminAppointmentsClient({
       />
 
       <Tabs defaultValue="scheduled" className="w-full space-y-2 sm:space-y-4">
-        <TabsList className="flex flex-wrap md:flex-nowrap w-full">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6 sm:mb-8">
           <TabsTrigger value="pending" className="flex-1 text-sm sm:text-base">
             Pending ({counts.pending})
           </TabsTrigger>

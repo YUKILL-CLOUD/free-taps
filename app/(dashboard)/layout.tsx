@@ -2,6 +2,7 @@
 
 import Menu from "@/app/components/front/Menu";
 import Navbar from "@/app/components/front/Navbar";
+import Footer from "@/app/components/front/Footer";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import Link from "next/link";
 import { SidebarProvider, useSidebar } from "@/app/components/front/SidebarContext";
@@ -93,8 +94,11 @@ function DashboardLayoutContent({
         </div>
         
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-auto">
-          {children}
+        <div className="flex-1 overflow-auto flex flex-col">
+          <div className="flex-1">
+            {children}
+          </div>
+          <Footer />
         </div>
       </div>
     </div>

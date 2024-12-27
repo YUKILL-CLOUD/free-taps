@@ -1,9 +1,8 @@
 "use client";
 
 import { deletePet } from "@/lib/actions";
-import { Pencil } from "lucide-react";
+import { Pencil, X } from "lucide-react";
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -99,10 +98,10 @@ const FormModal = ({
             <Form />
           </div>
           <button
-            className="absolute top-2 right-2 p-1"
+            className="absolute top-2 right-2 p-1 hover:bg-gray-100 rounded-full transition-colors"
             onClick={() => setOpen(false)}
           >
-            <Image src="/close.png" alt="Close" width={14} height={14} />
+            <X className="w-4 h-4 text-gray-500" />
           </button>
         </div>
       </div>

@@ -48,19 +48,29 @@ type PrescriptionFormData = z.infer<typeof prescriptionSchema>;
 type PrescriptionFormProps = {
   pets: { id: string; name: string }[];
   veterinarians: { id: string; name: string }[];
-  appointments: any[] | null;
+  preSelectedPetId?: string;
+  appointments?: any[] | null;
   userId: string;
+  onSubmit: (formData: FormData) => Promise<void>;
+  defaultValues?: {
+    petId?: string;
+    date?: Date;
+  };
 };
 
 export function PrescriptionForm({
   pets,
   veterinarians,
+  preSelectedPetId,
   appointments,
   userId,
+  defaultValues
 }: PrescriptionFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedPet, setSelectedPet] = useState<{ id: string; name: string } | null>(null);
+  const [selectedPet, setSelectedPet] = useState<{ id: string; name: string } | null>(
+    preSelectedPetId ? pets.find(pet => pet.id === preSelectedPetId) || null : null
+  );
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -71,14 +81,26 @@ export function PrescriptionForm({
   const form = useForm<PrescriptionFormData>({
     resolver: zodResolver(prescriptionSchema),
     defaultValues: {
-      petId: undefined,
-      veterinarianId: defaultVeterinarian?.id, // Set default vet
+      petId: preSelectedPetId || undefined,
+      veterinarianId: defaultVeterinarian?.id,
       appointmentId: undefined,
       medications: [{ name: '', dosage: '', instructions: '' }],
       status: "active",
       userId: userId,
     },
   });
+
+  // Add useEffect to handle preselected pet
+  useEffect(() => {
+    if (preSelectedPetId) {
+      const pet = pets.find(p => p.id === preSelectedPetId);
+      if (pet) {
+        setSelectedPet(pet);
+        setSearchTerm(pet.name);
+        form.setValue('petId', pet.id);
+      }
+    }
+  }, [preSelectedPetId, pets, form]);
 
   // Filter pets based on search term
   const filteredPets = pets.filter(pet =>

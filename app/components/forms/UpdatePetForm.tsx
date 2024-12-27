@@ -28,8 +28,13 @@ const UpdatePetForm = ({
   } = useForm<PetSchema>({
     resolver: zodResolver(petSchema),
     defaultValues: {
-      ...data,
+      name: data.name,
+      type: data.type,
+      breed: data.breed,
+      bloodType: data.bloodType,
       birthday: data.birthday ? new Date(data.birthday) : undefined,
+      sex: data.sex,
+      img: data.img || undefined
     },
   });
 
@@ -84,6 +89,11 @@ const UpdatePetForm = ({
             >
               <option value="Dog">Dog</option>
               <option value="Cat">Cat</option>
+              <option value="Fish">Fish</option>
+              <option value="Bird">Bird</option>
+              <option value="Reptile">Reptile</option>
+              <option value="Rabbit">Rabbit</option>
+              <option value="Rodents">Cat</option>
               <option value="Others">Others</option>
             </select>
             {errors.type && <p className="mt-2 text-sm text-red-600">{errors.type.message}</p>}
@@ -103,6 +113,7 @@ const UpdatePetForm = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           <InputField
             label="Blood Type"
+            defaultValue={data.bloodType}
             name="bloodType"
             register={register}
             error={errors.bloodType}
@@ -110,6 +121,7 @@ const UpdatePetForm = ({
           <Controller
             name="birthday"
             control={control}
+            defaultValue={data?.birthday ? new Date(data.birthday) : undefined}
             render={({ field: { onChange, value } }) => (
               <InputField
                 label="Birthday"
@@ -126,10 +138,12 @@ const UpdatePetForm = ({
             <label className="block text-sm font-medium text-gray-700">Sex</label>
             <select
               {...register("sex")}
+              defaultValue={data.sex}
               className="mt-1 block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+            
             >
-              <option value="male">Male</option>
-              <option value="female">Female</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
             </select>
             {errors.sex && <p className="mt-2 text-sm text-red-600">{errors.sex.message}</p>}
           </div>

@@ -36,6 +36,10 @@ import {
 import { StatusBadge } from './StatusBadge';
 import { UpdateAppointmentModal } from './UpdateAppointmetModal';
 
+const truncateText = (text: string, maxLength: number) => {
+  return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+};
+
 export type AppointmentWithRelations = Appointment & {
     pet: Pet;
     service: Service;
@@ -129,7 +133,7 @@ export function AppointmentTable({ appointments, refreshAppointments }: Appointm
             <TableHead>Service</TableHead>
             <TableHead>Date</TableHead>
             <TableHead>Time</TableHead>
-            <TableHead>Status</TableHead>
+            <TableHead className="hidden sm:table-cell">Status</TableHead>
             <TableHead className="w-[100px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -137,10 +141,17 @@ export function AppointmentTable({ appointments, refreshAppointments }: Appointm
           {appointments.map((appointment) => (
             <TableRow key={appointment.id}>
               <TableCell>{appointment.pet.name}</TableCell>
-              <TableCell>{appointment.service.name}</TableCell>
-              <TableCell>{format(new Date(appointment.date), 'yyyy-MM-dd')}</TableCell>
+              <TableCell>
+                <div className="md:hidden truncate max-w-[80px]">
+                  {appointment.service.name}
+                </div>
+                <div className="hidden md:block">
+                  {appointment.service.name}
+                </div>
+              </TableCell>
+              <TableCell>{format(new Date(appointment.date), 'MMM dd, yyyy')}</TableCell>
               <TableCell>{format(new Date(appointment.time), 'hh:mm a')}</TableCell>
-              <TableCell><StatusBadge status={appointment.status} /></TableCell>
+              <TableCell className="hidden sm:table-cell"><StatusBadge status={appointment.status} /></TableCell>
               <TableCell>{renderActions(appointment)}</TableCell>
             </TableRow>
           ))}

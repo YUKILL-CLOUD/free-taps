@@ -60,11 +60,11 @@ export default async function VaccinationRecordPage({
             Back to Pet Details
           </button>
         </Link>
-          <Link href={`/list/pets/${vaccinationRecord.petId}/petVaccination/${vaccinationRecord.id}/edit`}>
+          {/* <Link href={`/list/pets/${vaccinationRecord.petId}/petVaccination/${vaccinationRecord.id}/edit`}>
             <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
               Edit Vaccination Record
             </button>
-          </Link>
+          </Link> */}
       </div>
     </div>
   );

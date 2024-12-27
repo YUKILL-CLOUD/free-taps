@@ -2,10 +2,17 @@
 import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import Image from "next/image";
+import { X } from "lucide-react";
 import UpdatePetForm from "../forms/UpdatePetForm";
+import { PetSchema } from "@/lib/formValidationSchema";
 
-const UpdatePetModal = ({ data, onSuccess }: { data: any; onSuccess?: () => void }) => {
+const UpdatePetModal = ({ 
+  data, 
+  onSuccess 
+}: { 
+  data: PetSchema & { id: string }; 
+  onSuccess?: () => void;
+}) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -19,7 +26,16 @@ const UpdatePetModal = ({ data, onSuccess }: { data: any; onSuccess?: () => void
           <div className="bg-white rounded-md relative w-full max-w-5xl max-h-[90vh] flex flex-col">
             <div className="p-4 overflow-y-auto flex-grow">
               <UpdatePetForm 
-                data={data}
+                data={{
+                  id: data.id,
+                  name: data.name,
+                  type: data.type,
+                  breed: data.breed,
+                  bloodType: data.bloodType,
+                  birthday: typeof data.birthday === "string" ? new Date(data.birthday) : data.birthday,
+                  sex: data.sex,
+                  img: data.img
+                }}
                 onSubmitSuccess={() => {
                   setOpen(false);
                   if (onSuccess) onSuccess();
@@ -27,10 +43,10 @@ const UpdatePetModal = ({ data, onSuccess }: { data: any; onSuccess?: () => void
               />
             </div>
             <button
-              className="absolute top-2 right-2 p-1"
+              className="absolute top-2 right-2 p-1 hover:bg-gray-100 rounded-full transition-colors"
               onClick={() => setOpen(false)}
             >
-              <Image src="/close.png" alt="Close" width={14} height={14} />
+              <X className="w-4 h-4 text-gray-500" />
             </button>
           </div>
         </div>

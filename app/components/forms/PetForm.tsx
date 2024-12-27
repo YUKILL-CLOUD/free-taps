@@ -143,6 +143,11 @@ const PetForm = ({
             >
               <option value="Dog">Dog</option>
               <option value="Cat">Cat</option>
+              <option value="Fish">Fish</option>
+              <option value="Bird">Bird</option>
+              <option value="Reptile">Reptile</option>
+              <option value="Rabbit">Rabbit</option>
+              <option value="Rodents">Cat</option>
               <option value="Others">Others</option>
             </select>
             {errors.type && <p className="mt-2 text-sm text-red-600">{errors.type.message}</p>}
@@ -187,8 +192,8 @@ const PetForm = ({
               {...register("sex")}
               className="mt-1 block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
             >
-              <option value="male">Male</option>
-              <option value="female">Female</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
             </select>
             {errors.sex && <p className="mt-2 text-sm text-red-600">{errors.sex.message}</p>}
           </div>

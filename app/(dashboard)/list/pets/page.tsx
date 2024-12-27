@@ -14,7 +14,24 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import UpdatePetModal from "@/app/components/front/UpdatePetModal";
 import DeletePetModal from "@/app/components/front/DeletePetModal";
 
-type PetList = Pet & {Appointments:Appointment[]} & {healthRecords:HealthRecord[]} & {user:User}
+// enum PetType {
+//   Dog = "Dog",
+//   Cat = "Cat",
+// }
+
+type PetList = Pet & {
+  Appointments: Appointment[];
+  healthRecords: HealthRecord[];
+  user: User;
+  name: string;
+  type: "Dog" | "Cat" | "Fish" | "Bird" | "Reptile" | "Rabbit" | "Rodent" | "Others";
+  breed: string;
+  bloodType: string;
+  birthday: Date;
+  sex: "Male" | "Female"; // Change this to match the expected type
+  id?: number;
+  img?: string;
+}
 
 const columns = [
   {
@@ -90,7 +107,7 @@ const renderRow = (item: PetList) => (
       </td>
       <td className="hidden md:table-cell">{item.user?.firstName} {item.user?.lastName}</td>
       <td className="hidden md:table-cell"> <span>{calculateAge(item.birthday)} old</span></td>
-      <td className="hidden md:table-cell">{item.bloodType|| "-"}</td>
+      <td className="hidden md:table-cell">{(item.bloodType || "-").toUpperCase()}</td>
       <td className="hidden md:table-cell">{item.sex|| "-"}</td>
       <td>
         <div className="flex items-center gap-2">
@@ -99,7 +116,7 @@ const renderRow = (item: PetList) => (
               <Eye className="w-5 h-5 text-blue-500" />
             </Button>
           </Link>
-          {/* <UpdatePetModal data={item} /> */}
+          <UpdatePetModal data={item} />
           <DeletePetModal id={item.id} />
         </div>
       </td>

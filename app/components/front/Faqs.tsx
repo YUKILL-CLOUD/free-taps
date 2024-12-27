@@ -1,4 +1,11 @@
+'use client'
 import React from 'react'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 
 export default function Faqs() {
     const faqsList = [
@@ -38,22 +45,18 @@ export default function Faqs() {
                     </div>
                 </div>
                 <div className='flex-1 mt-12 md:mt-0'>
-                    <ul className='space-y-4 divide-y divide-gray-700'>
+                    <Accordion type="single" collapsible className="w-full">
                         {faqsList.map((item, idx) => (
-                            <li
-                                className="py-5"
-                                key={idx}>
-                                <summary
-                                    className="flex items-center justify-between font-semibold text-gray-600">
+                            <AccordionItem key={idx} value={`item-${idx}`}>
+                                <AccordionTrigger className="text-left font-semibold text-gray-600">
                                     {item.q}
-                                </summary>
-                                <p
-                                    dangerouslySetInnerHTML={{ __html: item.a }}
-                                    className='mt-3 text-gray-500 leading-relaxed'>
-                                </p>
-                            </li>
+                                </AccordionTrigger>
+                                <AccordionContent className="text-gray-500">
+                                    {item.a}
+                                </AccordionContent>
+                            </AccordionItem>
                         ))}
-                    </ul>
+                    </Accordion>
                 </div>
             </div>
         </section>

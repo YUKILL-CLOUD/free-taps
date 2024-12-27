@@ -29,14 +29,14 @@ export function AdminAppointmentTable({ appointments, actions, onRecordClick }: 
             <Table>
               <TableHeader className="bg-muted/50">
                 <TableRow>
-                  <TableHead className="w-[100px] whitespace-nowrap">Pet</TableHead>
-                  <TableHead className="w-[120px] whitespace-nowrap">Owner</TableHead>
-                  <TableHead className="w-[120px] whitespace-nowrap">Service</TableHead>
-                  <TableHead className="w-[100px] whitespace-nowrap">Record Type</TableHead>
-                  <TableHead className="w-[100px] whitespace-nowrap">Date</TableHead>
-                  <TableHead className="w-[80px] whitespace-nowrap">Time</TableHead>
-                  <TableHead className="w-[80px] whitespace-nowrap">Status</TableHead>
-                  <TableHead className="w-[60px] text-right whitespace-nowrap">Actions</TableHead>
+                  <TableHead className="whitespace-nowrap">Pet</TableHead>
+                  <TableHead className="whitespace-nowrap hidden sm:table-cell">Owner</TableHead>
+                  <TableHead className="whitespace-nowrap">Service</TableHead>
+                  <TableHead className=" whitespace-nowrap">Record Type</TableHead>
+                  <TableHead >Date</TableHead>
+                  <TableHead >Time</TableHead>
+                  <TableHead className=" whitespace-nowrap hidden sm:table-cell">Status</TableHead>
+                  <TableHead className="text-right whitespace-nowrap">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -48,11 +48,21 @@ export function AdminAppointmentTable({ appointments, actions, onRecordClick }: 
                       <TableCell className="whitespace-nowrap">
                         {appointment.pet.name}
                       </TableCell>
-                      <TableCell className="whitespace-nowrap">
-                        {appointment.user.firstName} {appointment.user.lastName}
+                      <TableCell className="whitespace-nowrap hidden sm:table-cell">
+                        <span className="sm:hidden">
+                          {appointment.user.firstName.charAt(0).toUpperCase()}. {appointment.user.lastName.charAt(0).toUpperCase() + appointment.user.lastName.slice(1)}
+                        </span>
+                        <span className="hidden sm:block">
+                        {appointment.user.firstName.charAt(0).toUpperCase() + appointment.user.firstName.slice(1)} {appointment.user.lastName.charAt(0).toUpperCase() + appointment.user.lastName.slice(1)}
+                        </span>
                       </TableCell>
                       <TableCell className="whitespace-nowrap">
-                        {appointment.service.name}
+                        <span className="sm:hidden truncate max-w-[70px] block">
+                          {appointment.service.name}
+                        </span>
+                        <span className="hidden sm:block">
+                          {appointment.service.name}
+                        </span>
                       </TableCell>
                       <TableCell className="whitespace-nowrap">
                         {recordType !== '-' && isScheduled && onRecordClick && (
@@ -66,13 +76,13 @@ export function AdminAppointmentTable({ appointments, actions, onRecordClick }: 
                         )}
                         {recordType === '-' && recordType}
                       </TableCell>
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell >
                         {format(new Date(appointment.date), 'MMM dd, yyyy')}
                       </TableCell>
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell >
                         {format(new Date(appointment.time), 'hh:mm a')}
                       </TableCell>
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap hidden sm:table-cell">
                         <StatusBadge status={appointment.status} />
                       </TableCell>
                       <TableCell className="text-right whitespace-nowrap">

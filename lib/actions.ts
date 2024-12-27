@@ -1321,3 +1321,43 @@ export const fetchActivities = async (userId: string) => {
     return [];
   }
 };
+
+export async function fetchUserAppointmentsByStatus(status: string, page: number) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    throw new Error('User not authenticated');
+  }
+
+  const where = status === 'missed' 
+    ? {
+        userId: session.user.id,
+        OR: [
+          { status: 'missed' },
+          { 
+            status: 'scheduled',
+            date: { lt: new Date() }
+          }
+        ]
+      }
+    : { 
+        userId: session.user.id,
+        status 
+      };
+
+  const [appointments, count] = await prisma.$transaction([
+    prisma.appointment.findMany({
+      where,
+      include: {
+        pet: true,
+        service: true,
+        user: true,
+      },
+      orderBy: { date: status === 'completed' || status === 'missed' ? 'desc' : 'asc' },
+      take: ITEM_PER_PAGE,
+      skip: ITEM_PER_PAGE * (page - 1),
+    }),
+    prisma.appointment.count({ where }),
+  ]);
+
+  return { appointments, count };
+}
