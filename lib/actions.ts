@@ -408,9 +408,22 @@ export const createAppointment = async (
 
     const data = Object.fromEntries(formData.entries());
     const date = new Date(data.date as string);
-    const [hours, minutes] = (data.time as string).split(':');
-    date.setHours(parseInt(hours, 10), parseInt(minutes, 10));
 
+    // Convert the 12-hour time format to 24-hour time format
+    const [timeStr, period] = (data.time as string).split(' ');
+    const [hours, minutes] = timeStr.split(':');
+    let hour = parseInt(hours, 10);
+
+    // Adjust for AM/PM
+    if (period === 'PM' && hour !== 12) {
+      hour += 12;
+    } else if (period === 'AM' && hour === 12) {
+      hour = 0;
+    }
+
+    date.setHours(hour, parseInt(minutes, 10));
+
+    // Check if the appointment slot is already taken
     const existingAppointment = await prisma.appointment.findFirst({
       where: {
         date: date,
@@ -422,6 +435,7 @@ export const createAppointment = async (
       return { success: false, error: 'This time slot has just been booked. Please choose another time.' };
     }
 
+    // Create the new appointment
     const newAppointment = await prisma.appointment.create({
       data: {
         petId: data.petId as string,
@@ -439,6 +453,7 @@ export const createAppointment = async (
       },
     });
 
+    // Send appointment email if user email exists
     if (newAppointment.user.email) {
       await sendAppointmentEmail(
         newAppointment.user.email,
@@ -462,6 +477,7 @@ export const createAppointment = async (
   }
 };
 
+
 export const createAppointmentsAdmin = async (
   formData: FormData
 ): Promise<ActionResult> => {
@@ -473,8 +489,21 @@ export const createAppointmentsAdmin = async (
 
     const data = Object.fromEntries(formData.entries());
     const date = new Date(data.date as string);
-    const [hours, minutes] = (data.time as string).split(':');
-    date.setHours(parseInt(hours, 10), parseInt(minutes, 10));
+   
+    // Convert the 12-hour time format to 24-hour time format
+    const [timeStr, period] = (data.time as string).split(' ');
+    const [hours, minutes] = timeStr.split(':');
+    let hour = parseInt(hours, 10);
+
+    // Adjust for AM/PM
+    if (period === 'PM' && hour !== 12) {
+      hour += 12;
+    } else if (period === 'AM' && hour === 12) {
+      hour = 0;
+    }
+
+    date.setHours(hour, parseInt(minutes, 10));
+
 
     const existingAppointment = await prisma.appointment.findFirst({
       where: {
@@ -695,8 +724,19 @@ export async function createAppointmentAdmin(formData: FormData) {
     const dateStr = formData.get('date') as string;
     const timeStr = formData.get('time') as string;
 
+    // Check if the date and time strings are valid
+    if (!dateStr || !timeStr) {
+      throw new Error("Date or Time is missing");
+    }
+
     // Combine date and time strings
-    const dateTime = new Date(`${dateStr}T${timeStr}`);
+    const dateTimeStr = `${dateStr}T${timeStr}`;
+    const dateTime = new Date(dateTimeStr);
+
+    // Check if the created Date object is valid
+    if (isNaN(dateTime.getTime())) {
+      throw new Error(`Invalid date-time format: ${dateTimeStr}`);
+    }
 
     const appointment = await prisma.appointment.create({
       data: {

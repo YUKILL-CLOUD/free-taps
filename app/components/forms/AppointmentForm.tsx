@@ -108,24 +108,28 @@ export function AppointmentForm({ pets, services, onClose, onAppointmentCreated 
       for (let hour = startHour; hour < endHour; hour++) {
         if (hour === 12) continue; // Skip 12 PM (lunch break)
         for (let minute = 0; minute < 60; minute += 15) {
-          const time = new Date(2000, 0, 1, hour, minute);
-          times.push(time.toLocaleTimeString('en-US', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
-          }));
-        }
-      }
-    } else if (selectedDay === 0) { // Sunday (half day)
-      for (let hour = startHour; hour < endHour; hour++) {
-        for (let minute = 0; minute < 60; minute += 15) {
-          const time = new Date(2000, 0, 1, hour, minute);
-          times.push(time.toLocaleTimeString('en-US', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
-          }));
-        }
+          // Correctly handle AM/PM format
+        const isPM = hour >= 12;
+        const hourIn12Format = hour % 12 || 12; // Convert 24-hour to 12-hour
+        const period = isPM ? 'PM' : 'AM';
+        const time = new Date(2000, 0, 1, hour, minute);
+        const formattedTime = `${hourIn12Format}:${minute.toString().padStart(2, '0')} ${period}`;
+        times.push(formattedTime);
       }
     }
+  } else if (selectedDay === 0) { // Sunday (half day)
+    for (let hour = startHour; hour < endHour; hour++) {
+      for (let minute = 0; minute < 60; minute += 15) {
+        // Correctly handle AM/PM format for Sunday
+        const isPM = hour >= 12;
+        const hourIn12Format = hour % 12 || 12; // Convert 24-hour to 12-hour
+        const period = isPM ? 'PM' : 'AM';
+        const time = new Date(2000, 0, 1, hour, minute);
+        const formattedTime = `${hourIn12Format}:${minute.toString().padStart(2, '0')} ${period}`;
+        times.push(formattedTime);
+      }
+    }
+  }
     
     return times;
   };
