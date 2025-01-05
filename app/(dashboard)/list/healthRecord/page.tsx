@@ -4,11 +4,18 @@ import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
 export default async function HealthRecordPage() {
-    // Fetch all pets for admin
+    // Fetch all pets for admin with user information
     const pets = await prisma.pet.findMany({
         select: {
             id: true,
             name: true,
+            user: {
+                select: {
+                    firstName: true,
+                    lastName: true,
+                    email: true,
+                }
+            },
         },
         orderBy: {
             name: 'asc',

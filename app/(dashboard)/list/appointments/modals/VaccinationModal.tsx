@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { toast } from "react-toastify"
 import 'react-toastify/dist/ReactToastify.css';
 import { AppointmentWithRelations } from "@/app/components/front/AppointmentTable"
-import { createVaccinationRecord, updateAppointmentStatus, createAppointmentAdmin } from "@/lib/actions"
+import { createVaccinationRecord, updateAppointmentStatus, createAppointmentsAdmin } from "@/lib/actions"
 import { Veterinarian } from "@prisma/client"
 import { addMonths } from "date-fns"
 
@@ -61,11 +61,11 @@ export function VaccinationModal({ isOpen, onClose, appointment, onFormSubmit, r
               nextAppointmentData.append('userId', appointment.userId);
               nextAppointmentData.append('petId', appointment.petId);
               nextAppointmentData.append('serviceId', appointment.serviceId);
-              nextAppointmentData.append('date', nextDate.toISOString());
-              nextAppointmentData.append('time', nextDate.toISOString());
+              nextAppointmentData.append('date', nextDate.toISOString().split('T')[0]);
+              nextAppointmentData.append('time', '09:00 AM');
               nextAppointmentData.append('status', 'pending');
 
-              const appointmentResult = await createAppointmentAdmin(nextAppointmentData);
+              const appointmentResult = await createAppointmentsAdmin(nextAppointmentData);
 
               if (appointmentResult.success) {
                 // Update the status to scheduled after creation
@@ -111,7 +111,11 @@ export function VaccinationModal({ isOpen, onClose, appointment, onFormSubmit, r
         </DialogHeader>
         <div className="space-y-4">
           <VaccinationForm 
-            pets={[appointment.pet]}
+            pets={[{
+              id: appointment.pet.id,
+              name: appointment.pet.name,
+              user: appointment.user
+            }]}
             onSubmit={handleSubmit}
             veterinarians={veterinarians}
             defaultValues={{

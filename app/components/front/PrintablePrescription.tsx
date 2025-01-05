@@ -56,8 +56,8 @@ export function PrintablePrescription({ prescription, clinicInfo }: PrintablePre
       {/* Footer */}
       <div className="flex justify-between items-end pt-4">
         <div className="print:visible">
-          <QRCode value={prescriptionUrl} size={64} />
-          <p className="text-xs mt-1">Scan to verify prescription</p>
+          {/* <QRCode value={prescriptionUrl} size={64} />
+          <p className="text-xs mt-1">Scan to verify prescription</p> */}
         </div>
         <div className="text-right">
           <div className="border-t border-black pt-2 mt-16 w-48">

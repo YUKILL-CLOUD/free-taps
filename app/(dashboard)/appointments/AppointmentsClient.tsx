@@ -8,6 +8,7 @@ import { fetchUserAppointmentsByStatus } from '@/lib/actions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter, useSearchParams } from 'next/navigation';
+import { ViewAppointmentModal } from '../list/appointments/modals/ViewAppointmentModal';
 
 type AppointmentsClientProps = {
   initialPendingAppointments: AppointmentWithRelations[];
@@ -47,6 +48,8 @@ export default function AppointmentsClient({
     completed: 1,
     missed: 1,
   });
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<AppointmentWithRelations | null>(null);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -78,6 +81,11 @@ export default function AppointmentsClient({
     const params = new URLSearchParams(searchParams?.toString());
     params.set(`${type}Page`, newPage.toString());
     router.push(`/appointments?${params.toString()}`);
+  };
+
+  const handleViewAppointment = (appointment: AppointmentWithRelations) => {
+    setSelectedAppointment(appointment);
+    setIsViewModalOpen(true);
   };
 
   return (
@@ -112,7 +120,8 @@ export default function AppointmentsClient({
               <CardContent>
                 <AppointmentTable 
                   appointments={appointmentsList} 
-                  refreshAppointments={refreshAppointments} 
+                  refreshAppointments={refreshAppointments}
+                  onViewClick={handleViewAppointment}
                 />
                 <div className="mt-4">
                   <Pagination 
@@ -126,6 +135,17 @@ export default function AppointmentsClient({
           </TabsContent>
         ))}
       </Tabs>
+
+      {selectedAppointment && (
+        <ViewAppointmentModal
+          isOpen={isViewModalOpen}
+          onClose={() => {
+            setIsViewModalOpen(false);
+            setSelectedAppointment(null);
+          }}
+          appointment={selectedAppointment}
+        />
+      )}
     </div>
   );
 }

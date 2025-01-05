@@ -24,6 +24,7 @@ import { AdminAppointmentTable } from './AdminAppointmentTable';
 import Pagination from '@/app/components/front/Pagination';
 import { VaccinationModal } from './modals/VaccinationModal';
 import { CreateAppointmentModal } from './modals/CreateAppointmentModal';
+import { ViewAppointmentModal } from './modals/ViewAppointmentModal';
 
 
 type AdminAppointmentsClientProps = {
@@ -77,6 +78,7 @@ export default function AdminAppointmentsClient({
     tinNo: string; }[]>([]);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
   useEffect(() => {
     const loadVeterinarians = async () => {
@@ -141,16 +143,16 @@ export default function AdminAppointmentsClient({
 
     switch (appointment.status) {
       case 'pending':
-        return ['scheduled', 'cancelled'];
+        return ['scheduled'];
       case 'scheduled':
         if (recordType !== '-' && !hasRequiredRecord) {
-          return ['cancelled', 'missed']; // Can't complete without record
+          return ['missed'];
         }
-        return ['completed', 'cancelled', 'missed'];
+        return ['completed', 'missed'];
       case 'completed':
-        return ['scheduled']; // Allow rescheduling
+        return ['scheduled'];
       case 'missed':
-        return ['scheduled']; // Allow rescheduling
+        return ['scheduled'];
       default:
         return [];
     }
@@ -198,10 +200,14 @@ export default function AdminAppointmentsClient({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="h-8 w-8 p-0">
+          <span className="sr-only">Open menu</span>
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => handleViewAppointment(appointment)}>
+        View
+      </DropdownMenuItem>
         {getAvailableStatusTransitions(appointment).map((status) => (
           <DropdownMenuItem
             key={status}
@@ -211,17 +217,25 @@ export default function AdminAppointmentsClient({
             Mark as {status}
           </DropdownMenuItem>
         ))}
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="text-red-600"
-          onClick={() => handleDelete(appointment.id)}
-        >
-          Cancel Appointment
-        </DropdownMenuItem>
+        {(appointment.status === 'pending' || appointment.status === 'scheduled' || appointment.status === 'missed') && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="text-red-600"
+              onClick={() => handleDelete(appointment.id)}
+            >
+              Cancel Appointment
+            </DropdownMenuItem>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
 
+  const handleViewAppointment = (appointment: AppointmentWithRelations) => {
+    setSelectedAppointment(appointment);
+    setIsViewModalOpen(true);
+  };
 
   const handlePageChange = (type: 'pending' | 'scheduled' | 'completed' | 'missed', newPage: number) => {
     const params = new URLSearchParams(searchParams?.toString());
@@ -290,6 +304,7 @@ export default function AdminAppointmentsClient({
                   appointments={appointments.pending}
                   actions={renderActions}
                   onRecordClick={undefined}
+                  isScheduledSection={false}
                 />
               </div>
               <div className="mt-4 px-4 sm:px-6">
@@ -314,6 +329,7 @@ export default function AdminAppointmentsClient({
                   appointments={appointments.scheduled}
                   actions={renderActions}
                   onRecordClick={handleRecordClick}
+                  isScheduledSection={true}
                 />
               </div>
               <div className="mt-4 px-4 sm:px-0">
@@ -338,6 +354,7 @@ export default function AdminAppointmentsClient({
                   appointments={appointments.completed}
                   actions={renderActions}
                   onRecordClick={undefined}
+                  isScheduledSection={false}
                 />
               </div>
               <div className="mt-4 px-4 sm:px-0">
@@ -362,6 +379,7 @@ export default function AdminAppointmentsClient({
                   appointments={appointments.missed}
                   actions={renderActions}
                   onRecordClick={undefined}
+                  isScheduledSection={false}
                 />
               </div>
               <div className="mt-4 px-4 sm:px-0">
@@ -378,6 +396,14 @@ export default function AdminAppointmentsClient({
 
       {selectedAppointment && (
         <>
+          <ViewAppointmentModal
+            isOpen={isViewModalOpen}
+            onClose={() => {
+              setIsViewModalOpen(false);
+              setSelectedAppointment(null);
+            }}
+            appointment={selectedAppointment}
+          />
           <HealthRecordModal
             isOpen={isHealthRecordModalOpen}
             onClose={() => {

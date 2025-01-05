@@ -182,23 +182,23 @@ export function PrescriptionForm({
               value={searchTerm}
               onChange={handleSearchChange}
               onFocus={() => setShowSuggestions(true)}
-              className="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="Type to search for a pet..."
             />
             {showSuggestions && (
-              <ul className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto">
+              <ul className="absolute z-50 w-full mt-1 bg-background border rounded-md shadow-lg max-h-60 overflow-auto">
                 {filteredPets.length > 0 ? (
                   filteredPets.map((pet) => (
                     <li
                       key={pet.id}
-                      className="px-4 py-2 hover:bg-indigo-600 hover:text-white cursor-pointer"
+                      className="px-4 py-2 hover:bg-accent hover:text-accent-foreground cursor-pointer"
                       onClick={() => handlePetSelect(pet)}
                     >
                       {pet.name}
                     </li>
                   ))
                 ) : (
-                  <li className="px-4 py-2 text-gray-500">No pets found</li>
+                  <li className="px-4 py-2 text-muted-foreground">No pets found</li>
                 )}
               </ul>
             )}

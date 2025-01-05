@@ -21,6 +21,13 @@ export default async function NewDewormingPage({
     select: {
       id: true,
       name: true,
+      user: {
+        select: {
+            firstName: true,
+            lastName: true,
+            email: true,
+        }
+    },
     },
   });
 

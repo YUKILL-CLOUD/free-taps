@@ -28,13 +28,10 @@ export function HealthRecordModal({ isOpen, onClose, appointment, onFormSubmit }
         status: 'completed'
       });
 
-      console.log('Status update result:', statusResult);
-
       if (statusResult.success) {
         toast.success('Appointment marked as completed');
         onFormSubmit();
         onClose();
-        window.location.reload();
       } else {
         console.error('Status update failed:', statusResult);
         toast.error('Failed to update appointment status');
@@ -53,7 +50,12 @@ export function HealthRecordModal({ isOpen, onClose, appointment, onFormSubmit }
         </DialogHeader>
         <div className="space-y-4">
           <HealthRecordForm 
-            pets={[appointment.pet]}
+            pets={[{
+              id: appointment.pet.id,
+              name: appointment.pet.name,
+              user: appointment.user
+            }]}
+            preSelectedPetId={appointment.pet.id}
             onSubmit={handleSubmit}
             defaultValues={{
               petId: appointment.pet.id,

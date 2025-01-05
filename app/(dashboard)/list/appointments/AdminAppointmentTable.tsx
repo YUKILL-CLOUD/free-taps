@@ -17,10 +17,18 @@ type AdminAppointmentTableProps = {
   appointments: AppointmentWithRelations[];
   actions: (appointment: AppointmentWithRelations) => React.ReactNode;
   onRecordClick?: (type: string, appointment: AppointmentWithRelations) => void;
-  title?: string;  // Make title optional
+  onViewClick?: (appointment: AppointmentWithRelations) => void;
+  title?: string;
+  isScheduledSection?: boolean;
 };
 
-export function AdminAppointmentTable({ appointments, actions, onRecordClick }: AdminAppointmentTableProps) {
+export function AdminAppointmentTable({ 
+  appointments, 
+  actions, 
+  onRecordClick,
+  onViewClick,
+  isScheduledSection = false
+}: AdminAppointmentTableProps) {
   return (
     <div className="w-full border rounded-md">
       <div className="max-w-full overflow-hidden">
@@ -32,10 +40,12 @@ export function AdminAppointmentTable({ appointments, actions, onRecordClick }: 
                   <TableHead className="whitespace-nowrap">Pet</TableHead>
                   <TableHead className="whitespace-nowrap hidden sm:table-cell">Owner</TableHead>
                   <TableHead className="whitespace-nowrap">Service</TableHead>
-                  <TableHead className=" whitespace-nowrap">Record Type</TableHead>
-                  <TableHead >Date</TableHead>
-                  <TableHead >Time</TableHead>
-                  <TableHead className=" whitespace-nowrap hidden sm:table-cell">Status</TableHead>
+                  {isScheduledSection && (
+                    <TableHead className="whitespace-nowrap">Record Type</TableHead>
+                  )}
+                  <TableHead>Date</TableHead>
+                  <TableHead>Time</TableHead>
+                  <TableHead className="whitespace-nowrap hidden sm:table-cell">Status</TableHead>
                   <TableHead className="text-right whitespace-nowrap">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -64,18 +74,20 @@ export function AdminAppointmentTable({ appointments, actions, onRecordClick }: 
                           {appointment.service.name}
                         </span>
                       </TableCell>
-                      <TableCell className="whitespace-nowrap">
-                        {recordType !== '-' && isScheduled && onRecordClick && (
-                          <Button
-                            variant="link"
-                            className="p-0 h-auto font-normal"
-                            onClick={() => onRecordClick(recordType, appointment)}
-                          >
-                            {recordType}
-                          </Button>
-                        )}
-                        {recordType === '-' && recordType}
-                      </TableCell>
+                      {isScheduledSection && (
+                        <TableCell className="whitespace-nowrap">
+                          {recordType !== '-' && isScheduled && onRecordClick && (
+                            <Button
+                              variant="link"
+                              className="p-0 h-auto font-normal text-purple-600 hover:text-purple-800 hover:underline flex items-center gap-1"
+                              onClick={() => onRecordClick(recordType, appointment)}
+                            >
+                              {recordType}
+                            </Button>
+                          )}
+                          {recordType === '-' && recordType}
+                        </TableCell>
+                      )}
                       <TableCell >
                         {format(new Date(appointment.date), 'MMM dd, yyyy')}
                       </TableCell>

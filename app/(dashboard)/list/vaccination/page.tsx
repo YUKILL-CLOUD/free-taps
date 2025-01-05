@@ -11,6 +11,13 @@ export default async function VaccinationPage() {
         select: {
             id: true,
             name: true,
+            user: {
+                select: {
+                    firstName: true,
+                    lastName: true,
+                    email: true,
+                }
+            },
         },
         orderBy: {
             name: 'asc',

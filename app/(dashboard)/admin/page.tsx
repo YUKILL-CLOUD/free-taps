@@ -21,6 +21,7 @@ const AdminPage = async () => {
       date: {
         gte: new Date(),
       },
+      status: 'scheduled',
     },
     include: {
       pet: true,
@@ -30,7 +31,7 @@ const AdminPage = async () => {
     orderBy: {
       date: 'asc',
     },
-    take: 10, // Limit to 10 upcoming appointments
+    take: 5, // Limit to 10 upcoming appointments
   });
  // Format appointments for the EventCalendar component
  const formattedAppointments = upcomingAppointments.map(appointment => ({

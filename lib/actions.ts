@@ -423,17 +423,19 @@ export const createAppointment = async (
 
     date.setHours(hour, parseInt(minutes, 10));
 
-    // Check if the appointment slot is already taken
-    const existingAppointment = await prisma.appointment.findFirst({
-      where: {
-        date: date,
-        time: date,
-      },
-    });
+//TODO - ONLY CHECK THE SCHEDULED APPOINTMENT
 
-    if (existingAppointment) {
-      return { success: false, error: 'This time slot has just been booked. Please choose another time.' };
-    }
+    // Check if the appointment slot is already taken
+    // const existingAppointment = await prisma.appointment.findFirst({
+    //   where: {
+    //     date: date,
+    //     time: date,
+    //   },
+    // });
+
+    // if (existingAppointment) {
+    //   return { success: false, error: 'This time slot has just been booked. Please choose another time.' };
+    // }
 
     // Create the new appointment
     const newAppointment = await prisma.appointment.create({
@@ -488,41 +490,45 @@ export const createAppointmentsAdmin = async (
     }
 
     const data = Object.fromEntries(formData.entries());
-    const date = new Date(data.date as string);
-   
-    // Convert the 12-hour time format to 24-hour time format
-    const [timeStr, period] = (data.time as string).split(' ');
-    const [hours, minutes] = timeStr.split(':');
-    let hour = parseInt(hours, 10);
+    const dateStr = data.date as string;
+    const rawTimeStr = data.time as string;
 
-    // Adjust for AM/PM
-    if (period === 'PM' && hour !== 12) {
+    const date = new Date(dateStr);
+    const [timeStr, period] = rawTimeStr.split(' ');
+    const [hours, minutes] = timeStr.split(':');
+    let hour = parseInt(hours);
+
+    // Convert to 24-hour format
+    if (period.toUpperCase() === 'PM' && hour !== 12) {
       hour += 12;
-    } else if (period === 'AM' && hour === 12) {
+    } else if (period.toUpperCase() === 'AM' && hour === 12) {
       hour = 0;
     }
 
-    date.setHours(hour, parseInt(minutes, 10));
+    // Set the time on the date object
+    date.setHours(hour, parseInt(minutes), 0, 0);
 
+    // Now date contains both the correct date and time
+    const dateTime = date;
 
-    const existingAppointment = await prisma.appointment.findFirst({
-      where: {
-        date: date,
-        time: date,
-      },
-    });
+    // const existingAppointment = await prisma.appointment.findFirst({
+    //   where: {
+    //     date: date,
+    //     time: date,
+    //   },
+    // });
 
-    if (existingAppointment) {
-      return { success: false, error: 'This time slot has just been booked. Please choose another time.' };
-    }
+    // if (existingAppointment) {
+    //   return { success: false, error: 'This time slot has just been booked. Please choose another time.' };
+    // }
 
     const newAdminAppointment = await prisma.appointment.create({
       data: {
         userId: data.userId as string,
         petId: data.petId as string,
         serviceId: data.serviceId as string,
-        date: date,
-        time: date,
+        date: dateTime,
+        time: dateTime,
         status: "scheduled",
       },
       include: {
@@ -776,13 +782,14 @@ export async function createAppointmentAdmin(formData: FormData) {
     return { success: false, error: 'Failed to create appointment' };
   }
 }
-export async function fetchUserAppointments(userId: string, limit: number = 5) {
+export async function fetchUserAppointments(userId: string) {
   const appointments = await prisma.appointment.findMany({
-    where: { 
+    where: {
       userId: userId,
       date: {
         gte: new Date(),
       },
+      status: 'scheduled',
     },
     include: {
       pet: true,
@@ -792,9 +799,8 @@ export async function fetchUserAppointments(userId: string, limit: number = 5) {
     orderBy: {
       date: 'asc',
     },
-    take: limit,
+    take: 5,
   });
-
   return appointments;
 }
 export async function fetchAdminAppointments(
@@ -879,7 +885,20 @@ export async function fetchAdminAppointments(
 }
 export async function updateMissedAppointments() {
   const now = new Date();
+  // const sevenDaysAgo = new Date(now);
+  // sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   
+  // // First, delete missed appointments older than 7 days
+  // await prisma.appointment.deleteMany({
+  //   where: {
+  //     status: 'missed',
+  //     date: {
+  //       lt: sevenDaysAgo
+  //     }
+  //   }
+  // });
+
+  // Then handle new missed appointments
   const missedAppointments = await prisma.appointment.findMany({
     where: {
       status: 'scheduled',
@@ -941,7 +960,7 @@ export async function getBookedTimes(date: string): Promise<Date[]> {
           },
           {
             status: {
-              in: ['scheduled', 'pending']
+              in: ['scheduled',]
             }
           }
         ]

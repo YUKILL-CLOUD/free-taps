@@ -22,9 +22,9 @@ export default async function EditHealthRecordPage({
 }: {
   params: { id: string; recordId: string };
 }) {
-const session = await getServerSession(authOptions)
+  const session = await getServerSession(authOptions)
   
-if (!session?.user) {
+  if (!session?.user) {
     redirect('/');
   }
 
@@ -39,7 +39,17 @@ if (!session?.user) {
 
   const pet = await prisma.pet.findUnique({
     where: { id: id },
-    select: { id: true, name: true },
+    select: { 
+      id: true, 
+      name: true,
+      user: {
+        select: {
+          firstName: true,
+          lastName: true,
+          email: true
+        }
+      }
+    },
   });
 
   if (!pet) {
@@ -74,12 +84,14 @@ if (!session?.user) {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Edit Health Record for {pet.name}</h1>
-      <Link href={`/list/pets/${healthRecord.petId}/petHealthRecord/${recordId}`}>
+      <div className="flex items-center gap-4 mb-6">
+        <Link href={`/list/pets/${healthRecord.petId}/petHealthRecord/${recordId}`}>
           <button className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition duration-200">
             Go Back
           </button>
-      </Link>
+        </Link>
+        <h1 className="text-2xl font-bold">Edit Health Record for {pet.name}</h1>
+      </div>
       <HealthRecordForm
         pets={[pet]}
         preSelectedPetId={pet.id}

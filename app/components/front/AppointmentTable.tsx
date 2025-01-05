@@ -26,7 +26,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
   } from "@/components/ui/alert-dialog"
-import { MoreHorizontal, Calendar, Clock, X, Pencil } from "lucide-react"
+import { MoreHorizontal, Calendar, Clock, X, Pencil, Eye } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,9 +58,10 @@ export type AppointmentWithRelations = Appointment & {
 type AppointmentTableProps = {
     appointments: AppointmentWithRelations[];
     refreshAppointments: () => void;
+    onViewClick?: (appointment: AppointmentWithRelations) => void;
   };
-
-export function AppointmentTable({ appointments, refreshAppointments }: AppointmentTableProps) {
+  
+export function AppointmentTable({ appointments, refreshAppointments, onViewClick }: AppointmentTableProps) {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<AppointmentWithRelations | null>(null);
 
@@ -93,8 +94,13 @@ export function AppointmentTable({ appointments, refreshAppointments }: Appointm
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-40">
-          <DropdownMenuItem onClick={() => handleUpdate(appointment)} className="flex items-center justify-between">
-            Update <Pencil className="h-4 w-4 ml-2" />
+          {(appointment.status === 'pending' || appointment.status === 'scheduled') && (
+            <DropdownMenuItem onClick={() => handleUpdate(appointment)} className="flex items-center justify-between">
+              Update <Pencil className="h-4 w-4 ml-2" />
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuItem onClick={() => onViewClick?.(appointment)} className="flex items-center justify-between">
+            View Details<Eye className="ml-2 h-4 w-4" />
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -164,6 +170,7 @@ export function AppointmentTable({ appointments, refreshAppointments }: Appointm
           onUpdate={refreshAppointments}
         />
       )}
+      
     </>
   );
 }

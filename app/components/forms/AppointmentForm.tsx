@@ -140,7 +140,6 @@ export function AppointmentForm({ pets, services, onClose, onAppointmentCreated 
     const [timeStr, period] = time.split(' ');
     const [hours, minutes] = timeStr.split(':');
     let hour = parseInt(hours);
-    
     // Convert to 24-hour format
     if (period.toUpperCase() === 'PM' && hour !== 12) {
       hour += 12;

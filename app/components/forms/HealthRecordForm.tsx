@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { HealthRecord } from "@prisma/client";
@@ -24,7 +24,15 @@ const healthRecordSchema = z.object({
 type HealthRecordSchema = z.infer<typeof healthRecordSchema>;
 
 type HealthRecordFormProps = {
-  pets: { id: string; name: string }[];
+  pets: {
+    id: string;
+    name: string;
+    user: {
+      firstName: string;
+      lastName: string;
+      email: string;
+    };
+  }[];
   preSelectedPetId?: string;
   initialData?: Partial<HealthRecord>;
   appointmentId?: string;
@@ -83,9 +91,21 @@ export function HealthRecordForm({ pets, preSelectedPetId, initialData, onSubmit
     }
   }, [preSelectedPetId, pets, setValue]);
 
-  const filteredPets = pets.filter(pet =>
-    pet.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredPets = useMemo(() => {
+    const searchTerms = searchTerm.toLowerCase().split(' ');
+    return pets.filter(pet => {
+      const searchableText = [
+        pet.name,
+        pet.user.firstName,
+        pet.user.lastName,
+        pet.user.email
+      ].map(text => text.toLowerCase());
+      
+      return searchTerms.every(term => 
+        searchableText.some(text => text.includes(term))
+      );
+    });
+  }, [pets, searchTerm]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -160,21 +180,25 @@ export function HealthRecordForm({ pets, preSelectedPetId, initialData, onSubmit
             placeholder="Type to search for a pet..."
           />
           {showSuggestions && (
-            <ul className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
-              {pets.length > 0 ? (
-                pets.map((pet) => (
+            <ul className="absolute z-50 left-0 right-0 mt-1 bg-white shadow-lg max-h-60 rounded-md py-1 text-sm overflow-auto border border-gray-200">
+              {filteredPets.length > 0 ? (
+                filteredPets.map((pet) => (
                   <li
                     key={pet.id}
-                    className="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white"
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                     onClick={() => handlePetSelect(pet)}
                   >
-                    {pet.name}
+                    <div className="flex flex-col">
+                      <span className="font-medium">{pet.name}</span>
+                      <span className="text-sm text-gray-500">
+                        Owner: {pet.user.firstName} {pet.user.lastName}
+                      </span>
+                      <span className="text-xs text-gray-400">{pet.user.email}</span>
+                    </div>
                   </li>
                 ))
               ) : (
-                <li className="cursor-default select-none relative py-2 pl-3 pr-9 text-gray-700">
-                  No pets found
-                </li>
+                <li className="px-4 py-2 text-gray-500">No pets found</li>
               )}
             </ul>
           )}
@@ -212,21 +236,29 @@ export function HealthRecordForm({ pets, preSelectedPetId, initialData, onSubmit
         register={register}
       />
 
-      <InputField
-        label="Diagnosis"
-        placeholder="Enter diagnosis"
-        {...register("diagnosis")}
-        error={errors.diagnosis}
-        register={register}
-      />
+      <div>
+        <label htmlFor="diagnosis" className="block text-sm font-medium text-gray-700">Diagnosis</label>
+        <textarea
+          id="diagnosis"
+          placeholder="Enter diagnosis"
+          {...register("diagnosis")}
+          rows={3}
+          className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+        ></textarea>
+        {errors.diagnosis && <p className="mt-1 text-sm text-red-600">{errors.diagnosis.message}</p>}
+      </div>
 
-      <InputField
-        label="Treatment"
-        placeholder="Enter treatment"
-        {...register("treatment")}
-        error={errors.treatment}
-        register={register}
-      />
+      <div>
+        <label htmlFor="treatment" className="block text-sm font-medium text-gray-700">Treatment</label>
+        <textarea
+          id="treatment"
+          placeholder="Enter treatment"
+          {...register("treatment")}
+          rows={3}
+          className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+        ></textarea>
+        {errors.treatment && <p className="mt-1 text-sm text-red-600">{errors.treatment.message}</p>}
+      </div>
 
       <div>
         <label htmlFor="notes" className="block text-sm font-medium text-gray-700">Notes</label>
@@ -238,6 +270,7 @@ export function HealthRecordForm({ pets, preSelectedPetId, initialData, onSubmit
           className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         ></textarea>
       </div>
+
 
       <button
         type="submit"
