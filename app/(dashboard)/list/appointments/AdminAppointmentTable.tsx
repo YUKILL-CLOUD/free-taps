@@ -91,10 +91,7 @@ export function AdminAppointmentTable({
                       <TableCell >
                         {format(new Date(appointment.date), 'MMM dd, yyyy')}
                       </TableCell>
-                      <TableCell>{format(
-    toZonedTime(appointment.time, 'Asia/Manila'),
-    'hh:mm a'
-  )}</TableCell>
+                      <TableCell>{(appointment.time, 'hh:mm a')}</TableCell>
                       <TableCell className="whitespace-nowrap hidden sm:table-cell">
                         <StatusBadge status={appointment.status} />
                       </TableCell>
