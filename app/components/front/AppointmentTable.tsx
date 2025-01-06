@@ -1,6 +1,7 @@
 'use client'
 import React, { useState } from 'react';
-import { format, toZonedTime } from 'date-fns-tz';
+import { toZonedTime } from 'date-fns-tz';
+import {format } from 'date-fns'
 import {
   Table,
   TableBody,

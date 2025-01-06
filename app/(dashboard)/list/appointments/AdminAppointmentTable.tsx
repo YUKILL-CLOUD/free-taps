@@ -1,5 +1,6 @@
 import React from 'react';
-import { format, toZonedTime } from 'date-fns-tz';
+import { toZonedTime } from 'date-fns-tz';
+import {format } from 'date-fns'
 import {
   Table,
   TableBody,
@@ -91,7 +92,10 @@ export function AdminAppointmentTable({
                       <TableCell >
                         {format(new Date(appointment.date), 'MMM dd, yyyy')}
                       </TableCell>
-                      <TableCell>{(appointment.time, 'hh:mm a')}</TableCell>
+                      <TableCell>{format(
+    toZonedTime(appointment.time, 'Asia/Manila'),
+    'hh:mm a'
+  )}</TableCell>
                       <TableCell className="whitespace-nowrap hidden sm:table-cell">
                         <StatusBadge status={appointment.status} />
                       </TableCell>
