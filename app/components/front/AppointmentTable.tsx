@@ -157,23 +157,14 @@ export function AppointmentTable({ appointments, refreshAppointments, onViewClic
               </TableCell>
               <TableCell>{format(new Date(appointment.date), 'MMM dd, yyyy')}</TableCell>
               <TableCell>
-                      {(() => { 
-                        console.log('usertable');
-                        console.log('Raw time:', appointment.time);
-                       
-                        // Create a Date object from the raw UTC time (which is in appointment.time)
-                        const timeDate = new Date(appointment.time); // UTC time from the backend
+                        {(() => {
+                          const timeDate = new Date(appointment.time);  // UTC time, e.g., '2025-01-07T16:00:00.000+00:00'
 
-                        // Convert the UTC time to the desired local time zone (e.g., 'Asia/Manila')
-                        const timeZone = 'Asia/Manila';  // Replace with your desired time zone
-                        const localTime = toZonedTime(timeDate, timeZone);  // Convert UTC to local time
+                          // Format the UTC time directly to 12-hour format (AM/PM) without any time zone conversion
+                          const formattedTime = format(timeDate, 'hh:mm a', { timeZone: 'UTC' });
 
-                        // Format the local time in 12-hour AM/PM format
-                        const formattedTime = format(localTime, 'hh:mm a', { timeZone });
-
-                        console.log('Formatted time:', formattedTime);
-                        return formattedTime;  // Render the formatted time
-                      })()}
+                          return formattedTime;  // Display formatted time
+                        })()}
                     </TableCell>
               <TableCell className="hidden sm:table-cell"><StatusBadge status={appointment.status} /></TableCell>
               <TableCell>{renderActions(appointment)}</TableCell>
