@@ -174,6 +174,19 @@ export function AppointmentTable({ appointments, refreshAppointments, onViewClic
                   return `${hour12}:${minutes} ${period}`;
                 })()}
               </TableCell>
+              {/* if appointment.time lang anmg i butang if the time is 15:00 then show 3:00 PM + 8 hours = 8pm 
+              if namamn ma subtract 8 from the time 15:00 - 8 = 7:00 then show 7:00 AM the time is correct but the day is wwrong
+              {(() => {
+                  // Create a Date object from the appointment time
+                  const timeDate = new Date(appointment.time);
+                  
+                  // Subtract 8 hours (8 hours * 60 minutes * 60 seconds * 1000 milliseconds)
+                  timeDate.setHours(timeDate.getHours() - 8);
+
+                  // Format the adjusted time into 12-hour format with AM/PM
+                  return format(timeDate, 'hh:mm a');
+                })()} 
+                 this is the closest i can get*/}
               <TableCell className="hidden sm:table-cell"><StatusBadge status={appointment.status} /></TableCell>
               <TableCell>{renderActions(appointment)}</TableCell>
             </TableRow>
