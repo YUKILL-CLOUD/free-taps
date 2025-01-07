@@ -93,19 +93,19 @@ export function AdminAppointmentTable({
                       </TableCell>
                       <TableCell>
                       {(() => {
-                const timeDate = new Date(appointment.time);
-                console.log('Original UTC time:', timeDate);
-                
-                // Subtract 8 hours for PST
-                const pstTime = new Date(timeDate.getTime() - (8 * 60 * 60 * 1000));
-                console.log('PST time:', pstTime);
-                
-                // Format in 24-hour format
-                const formattedTime = format(pstTime, 'hh:mm a');
-                console.log('Formatted time:', formattedTime);
-                
-                return formattedTime;
-              })()}
+                    const timeDate = new Date(appointment.time);
+                    console.log('Original UTC time:', timeDate);
+                    
+                    // Subtract 8 hours for PST
+                    const pstTime = new Date(timeDate.getTime() - (8 * 60 * 60 * 1000));
+                    console.log('PST time:', pstTime);
+                    
+                    // Format in 24-hour format
+                    const formattedTime = format(pstTime, 'HH:mm', { timeZone: 'UTC' });
+                    console.log('Formatted time:', formattedTime);
+                    
+                    return formattedTime;
+                  })()}
                     </TableCell>
                       <TableCell className="whitespace-nowrsap hidden sm:table-cell">
                         <StatusBadge status={appointment.status} />
