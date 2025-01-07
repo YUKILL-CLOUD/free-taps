@@ -157,8 +157,17 @@ export function AppointmentTable({ appointments, refreshAppointments, onViewClic
               </TableCell>
               <TableCell>{format(new Date(appointment.date), 'MMM dd, yyyy')}</TableCell>
               <TableCell>
-              {format(new Date(appointment.time), 'hh:mm a')}
-                    </TableCell>
+                {(() => {
+                  // Create a Date object from the appointment time
+                  const timeDate = new Date(appointment.time);
+                  
+                  // Subtract 8 hours (8 hours * 60 minutes * 60 seconds * 1000 milliseconds)
+                  timeDate.setHours(timeDate.getHours() - 8);
+
+                  // Format the adjusted time into 12-hour format with AM/PM
+                  return format(timeDate, 'hh:mm a');
+                })()}
+              </TableCell>
               <TableCell className="hidden sm:table-cell"><StatusBadge status={appointment.status} /></TableCell>
               <TableCell>{renderActions(appointment)}</TableCell>
             </TableRow>
