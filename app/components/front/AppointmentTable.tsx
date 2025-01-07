@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react';
-import { toZonedTime } from 'date-fns-tz';
+import { fromZonedTime } from 'date-fns-tz';
 import {format } from 'date-fns'
 import {
   Table,
@@ -157,10 +157,17 @@ export function AppointmentTable({ appointments, refreshAppointments, onViewClic
                 </div>
               </TableCell>
               <TableCell>{format(new Date(appointment.date), 'MMM dd, yyyy')}</TableCell>
-              <TableCell>{format(
-    toZonedTime(appointment.time, 'Asia/Manila'),
-    'hh:mm a'
-  )}</TableCell>
+              <TableCell> 
+              {(() => {
+                          console.log('Raw time:', appointment.time);
+                          console.log('Raw date:', appointment.date);
+                          const timeDate = new Date(appointment.time);
+                          console.log('Time Date object:', timeDate);
+                          const formattedTime = format(timeDate, 'hh:mm a');
+                          console.log('Formatted time:', formattedTime);
+                          return formattedTime;
+                        })()}
+              </TableCell>
               <TableCell className="hidden sm:table-cell"><StatusBadge status={appointment.status} /></TableCell>
               <TableCell>{renderActions(appointment)}</TableCell>
             </TableRow>
