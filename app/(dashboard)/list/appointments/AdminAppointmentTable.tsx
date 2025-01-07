@@ -1,5 +1,5 @@
 import React from 'react';
-import {format } from 'date-fns'
+import {format, toZonedTime } from 'date-fns-tz'
 import {
   Table,
   TableBody,
@@ -92,16 +92,24 @@ export function AdminAppointmentTable({
                         {format(new Date(appointment.date), 'MMM dd, yyyy')}
                       </TableCell>
                       <TableCell>
-                        {(() => {
-                          console.log('Raw time:', appointment.time);
-                          console.log('Raw date:', appointment.date);
-                          const timeDate = new Date(appointment.time);
-                          console.log('Time Date object:', timeDate);
-                          const formattedTime = format(timeDate, 'hh:mm a');
-                          console.log('Formatted time:', formattedTime);
-                          return formattedTime;
-                        })()}
-                      </TableCell>
+                      {(() => {
+                        console.log('admin table');
+                        console.log('Raw time:', appointment.time);
+                        
+                        // Create a Date object from the raw UTC time (which is in appointment.time)
+                        const timeDate = new Date(appointment.time); // UTC time from the backend
+
+                        // Convert the UTC time to the desired local time zone (e.g., 'Asia/Manila')
+                        const timeZone = 'Asia/Manila';  // Replace with your desired time zone
+                        const localTime = toZonedTime(timeDate, timeZone);  // Convert UTC to local time
+
+                        // Format the local time in 12-hour AM/PM format
+                        const formattedTime = format(localTime, 'hh:mm a', { timeZone });
+
+                        console.log('Formatted time:', formattedTime);
+                        return formattedTime;  // Render the formatted time
+                      })()}
+                    </TableCell>
                       <TableCell className="whitespace-nowrsap hidden sm:table-cell">
                         <StatusBadge status={appointment.status} />
                       </TableCell>

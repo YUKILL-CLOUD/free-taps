@@ -1,7 +1,6 @@
 'use client'
 import React, { useState } from 'react';
-import { fromZonedTime } from 'date-fns-tz';
-import {format } from 'date-fns'
+import { format, toZonedTime } from 'date-fns-tz';
 import {
   Table,
   TableBody,
@@ -157,17 +156,25 @@ export function AppointmentTable({ appointments, refreshAppointments, onViewClic
                 </div>
               </TableCell>
               <TableCell>{format(new Date(appointment.date), 'MMM dd, yyyy')}</TableCell>
-              <TableCell> 
-              {(() => {
-                          console.log('Raw time:', appointment.time);
-                          console.log('Raw date:', appointment.date);
-                          const timeDate = new Date(appointment.time);
-                          console.log('Time Date object:', timeDate);
-                          const formattedTime = format(timeDate, 'hh:mm a');
-                          console.log('Formatted time:', formattedTime);
-                          return formattedTime;
-                        })()}
-              </TableCell>
+              <TableCell>
+                      {(() => { 
+                        console.log('usertable');
+                        console.log('Raw time:', appointment.time);
+                       
+                        // Create a Date object from the raw UTC time (which is in appointment.time)
+                        const timeDate = new Date(appointment.time); // UTC time from the backend
+
+                        // Convert the UTC time to the desired local time zone (e.g., 'Asia/Manila')
+                        const timeZone = 'Asia/Manila';  // Replace with your desired time zone
+                        const localTime = toZonedTime(timeDate, timeZone);  // Convert UTC to local time
+
+                        // Format the local time in 12-hour AM/PM format
+                        const formattedTime = format(localTime, 'hh:mm a', { timeZone });
+
+                        console.log('Formatted time:', formattedTime);
+                        return formattedTime;  // Render the formatted time
+                      })()}
+                    </TableCell>
               <TableCell className="hidden sm:table-cell"><StatusBadge status={appointment.status} /></TableCell>
               <TableCell>{renderActions(appointment)}</TableCell>
             </TableRow>
