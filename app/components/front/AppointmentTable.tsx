@@ -158,19 +158,29 @@ export function AppointmentTable({ appointments, refreshAppointments, onViewClic
               <TableCell>{format(new Date(appointment.date), 'MMM dd, yyyy')}</TableCell>
               <TableCell>
               {(() => {
-                const timeDate = new Date(appointment.time);
-                console.log('Original UTC time:', timeDate);
-                
-                // Subtract 8 hours for PST
-                const pstTime = new Date(timeDate.getTime() - (8 * 60 * 60 * 1000));
-                console.log('PST time:', pstTime);
-                
-                // Format in 24-hour format
-                const formattedTime = format(pstTime, 'hh:mm a', { timeZone: 'UTC' });
-                console.log('Formatted time:', formattedTime);
-                
-                return formattedTime;
-              })()}
+  const timeDate = new Date(appointment.time);
+  console.log('Original UTC time:', timeDate);
+  
+  // Get hours and minutes
+  const utcHours = timeDate.getUTCHours();
+  const minutes = timeDate.getUTCMinutes();
+  
+  // Adjust hours for PST (subtract 8) while handling day wraparound
+  let pstHours = utcHours - 8;
+  if (pstHours < 0) {
+    pstHours += 24;  // Wrap around to previous day's hour
+  }
+  
+  // Create time string for formatting
+  const timeString = `${pstHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  const timeForFormat = new Date(`2000-01-01T${timeString}`);
+  
+  // Format in 12-hour format
+  const formattedTime = format(timeForFormat, 'hh:mm a', { timeZone: 'UTC' });
+  console.log('Formatted time:', formattedTime);
+  
+  return formattedTime;
+})()}
                     </TableCell>
               <TableCell className="hidden sm:table-cell"><StatusBadge status={appointment.status} /></TableCell>
               <TableCell>{renderActions(appointment)}</TableCell>
