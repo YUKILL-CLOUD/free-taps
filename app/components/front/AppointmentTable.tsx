@@ -155,19 +155,11 @@ export function AppointmentTable({ appointments, refreshAppointments, onViewClic
                   {appointment.service.name}
                 </div>
               </TableCell>
-              <TableCell>{format(new Date(appointment.date), 'MMM dd, yyyy')}</TableCell>
               <TableCell>
-                {(() => {
-                  // Create a Date object from the appointment time
-                  const timeDate = new Date(appointment.time);
-                  
-                  // Subtract 8 hours (8 hours * 60 minutes * 60 seconds * 1000 milliseconds)
-                  timeDate.setHours(timeDate.getHours() - 8);
-                  const displayTime = new Date(2000, 0, 1, timeDate.getHours(), timeDate.getMinutes());
-    
-                  // Format the adjusted time into 12-hour format with AM/PM
-                  return format(displayTime, 'hh:mm a');
-                })()}
+                <p>{format(new Date(appointment.date), 'MMM dd, yyyy')}</p>
+              </TableCell>
+              <TableCell>
+              <p>{format(new Date(appointment.time), 'hh:mm a')}</p>
               </TableCell>
               <TableCell className="hidden sm:table-cell"><StatusBadge status={appointment.status} /></TableCell>
               <TableCell>{renderActions(appointment)}</TableCell>
