@@ -157,21 +157,26 @@ export function AppointmentTable({ appointments, refreshAppointments, onViewClic
               </TableCell>
               <TableCell>{format(new Date(appointment.date), 'MMM dd, yyyy')}</TableCell>
               <TableCell>
-              {(() => {
-                const timeDate = new Date(appointment.time);
-                console.log('Original UTC time:', timeDate);
-                
-                // Subtract 8 hours for PST
-                const pstTime = new Date(timeDate.getTime() - (8 * 60 * 60 * 1000));
-                console.log('PST time:', pstTime);
-                
-                // Format in 24-hour format
-                const formattedTime = format(pstTime, 'hh:mm a', { timeZone: 'UTC' });
-                console.log('Formatted time:', formattedTime);
-                
-                return formattedTime;
-              })()}
-                    </TableCell>
+                {(() => {
+                  // Parse the UTC time string from the database
+                  const timeDate = new Date(appointment.time);
+                  
+                  // Extract just the hours and minutes from UTC time
+                  let hours = timeDate.getUTCHours();
+                  const minutes = timeDate.getUTCMinutes();
+                  
+                  // Subtract 8 hours for PST, handling wraparound within the same day
+                  hours = (hours - 8 + 24) % 24;
+                  
+                  // Create a new date object with fixed date (2000-01-01) and adjusted time
+                  const displayTime = new Date(2000, 0, 1, hours, minutes);
+                  
+                  // Format in 12-hour format
+                  const formattedTime = format(displayTime, 'hh:mm a');
+                  
+                  return formattedTime;
+                })()}
+              </TableCell>
               <TableCell className="hidden sm:table-cell"><StatusBadge status={appointment.status} /></TableCell>
               <TableCell>{renderActions(appointment)}</TableCell>
             </TableRow>
