@@ -159,7 +159,18 @@ export function AppointmentTable({ appointments, refreshAppointments, onViewClic
                 <p>{format(new Date(appointment.date), 'MMM dd, yyyy')}</p>
               </TableCell>
               <TableCell>
-              <p>{format(new Date(appointment.time), 'hh:mm a')}</p>
+                {(() => {
+                  const timeString = appointment.time.toISOString();
+                  // Extract hours and minutes from the UTC time string
+                  const hours = parseInt(timeString.slice(11, 13), 10);
+                  const minutes = timeString.slice(14, 16);
+                  
+                  // Convert to 12-hour format
+                  const hour12 = hours % 12 || 12;
+                  const period = hours >= 12 ? 'PM' : 'AM';
+                  
+                  return `${hour12}:${minutes} ${period}`;
+                })()}
               </TableCell>
               <TableCell className="hidden sm:table-cell"><StatusBadge status={appointment.status} /></TableCell>
               <TableCell>{renderActions(appointment)}</TableCell>
