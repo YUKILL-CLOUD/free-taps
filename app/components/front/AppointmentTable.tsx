@@ -156,22 +156,29 @@ export function AppointmentTable({ appointments, refreshAppointments, onViewClic
                 </div>
               </TableCell>
               <TableCell>
-                <p>{format(new Date(appointment.date), 'MMM dd, yyyy')}</p>
+                {(() => {
+                  const isoDate = appointment.date.toISOString();
+                  const [datePart] = isoDate.split("T");
+                  const [year, month, day] = datePart.split("-");
+                  
+                  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                  return `${monthNames[parseInt(month, 10) - 1]} ${parseInt(day, 10)}, ${year}`;
+                })()}
               </TableCell>
               <TableCell>
                 {(() => {
-                  // Parse the ISO time string from the database
-                  const timeDate = new Date(appointment.time);
+                  const isoTime = appointment.time.toISOString();
+                  const timeString = isoTime.split('T')[1].split('.')[0];
+                  const [hours, minutes] = timeString.split(':').map(Number);
                   
-                  // Get UTC hours and minutes
-                  const hours = timeDate.getUTCHours();
-                  const minutes = timeDate.getUTCMinutes().toString().padStart(2, '0');
-                  
-                  // Convert UTC time to 12-hour format
+                  // Convert to 12-hour format
                   const hour12 = hours % 12 || 12;
                   const period = hours >= 12 ? 'PM' : 'AM';
                   
-                  return `${hour12}:${minutes} ${period}`;
+                  // Format minutes to always show two digits
+                  const formattedMinutes = minutes.toString().padStart(2, '0');
+                  
+                  return `${hour12}:${formattedMinutes} ${period}`;
                 })()}
               </TableCell>
               {/* if appointment.time lang anmg i butang if the time is 15:00 then show 3:00 PM + 8 hours = 8pm 
