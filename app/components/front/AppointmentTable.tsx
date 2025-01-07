@@ -160,14 +160,14 @@ export function AppointmentTable({ appointments, refreshAppointments, onViewClic
               </TableCell>
               <TableCell>
                 {(() => {
-                  // Create a new date object without timezone conversion
+                  // Parse the ISO time string from the database
                   const timeDate = new Date(appointment.time);
                   
-                  // Get hours and minutes directly
-                  const hours = timeDate.getHours();
-                  const minutes = timeDate.getMinutes().toString().padStart(2, '0');
+                  // Get UTC hours and minutes
+                  const hours = timeDate.getUTCHours();
+                  const minutes = timeDate.getUTCMinutes().toString().padStart(2, '0');
                   
-                  // Convert to 12-hour format
+                  // Convert UTC time to 12-hour format
                   const hour12 = hours % 12 || 12;
                   const period = hours >= 12 ? 'PM' : 'AM';
                   
