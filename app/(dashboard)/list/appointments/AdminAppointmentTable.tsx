@@ -101,7 +101,7 @@ export function AdminAppointmentTable({
                 console.log('PST time:', pstTime);
                 
                 // Format in 24-hour format
-                const formattedTime = format(pstTime, 'hh:mm a', { timeZone: 'UTC' });
+                const formattedTime = format(pstTime, 'hh:mm a');
                 console.log('Formatted time:', formattedTime);
                 
                 return formattedTime;
