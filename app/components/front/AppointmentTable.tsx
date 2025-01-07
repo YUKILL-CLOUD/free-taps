@@ -163,9 +163,10 @@ export function AppointmentTable({ appointments, refreshAppointments, onViewClic
                   
                   // Subtract 8 hours (8 hours * 60 minutes * 60 seconds * 1000 milliseconds)
                   timeDate.setHours(timeDate.getHours() - 8);
-
+                  const displayTime = new Date(2000, 0, 1, timeDate.getHours(), timeDate.getMinutes());
+    
                   // Format the adjusted time into 12-hour format with AM/PM
-                  return format(timeDate, 'hh:mm a');
+                  return format(displayTime, 'hh:mm a');
                 })()}
               </TableCell>
               <TableCell className="hidden sm:table-cell"><StatusBadge status={appointment.status} /></TableCell>
