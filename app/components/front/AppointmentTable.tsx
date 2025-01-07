@@ -160,10 +160,12 @@ export function AppointmentTable({ appointments, refreshAppointments, onViewClic
               </TableCell>
               <TableCell>
                 {(() => {
-                  const timeString = appointment.time.toISOString();
-                  // Extract hours and minutes from the UTC time string
-                  const hours = parseInt(timeString.slice(11, 13), 10);
-                  const minutes = timeString.slice(14, 16);
+                  // Create a new date object without timezone conversion
+                  const timeDate = new Date(appointment.time);
+                  
+                  // Get hours and minutes directly
+                  const hours = timeDate.getHours();
+                  const minutes = timeDate.getMinutes().toString().padStart(2, '0');
                   
                   // Convert to 12-hour format
                   const hour12 = hours % 12 || 12;
