@@ -89,23 +89,17 @@ export function AdminAppointmentTable({
                         </TableCell>
                       )}
                       <TableCell >
-                        {format(new Date(appointment.date), 'MMM dd, yyyy')}
+                      {(() => {
+                  const isoDate = appointment.date.toISOString();
+                  const [datePart] = isoDate.split("T");
+                  const [year, month, day] = datePart.split("-");
+                  
+                  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                  return `${monthNames[parseInt(month, 10) - 1]} ${parseInt(day, 10)}, ${year}`;
+                })()}
                       </TableCell>
                       <TableCell>
-                      {(() => {
-                    const timeDate = new Date(appointment.time);
-                    console.log('Original UTC time:', timeDate);
-                    
-                    // Subtract 8 hours for PST
-                    const pstTime = new Date(timeDate.getTime() - (8 * 60 * 60 * 1000));
-                    console.log('PST time:', pstTime);
-                    
-                    // Format in 24-hour format
-                    const formattedTime = format(pstTime, 'HH:mm', { timeZone: 'UTC' });
-                    console.log('Formatted time:', formattedTime);
-                    
-                    return formattedTime;
-                  })()}
+                   {  format(new Date(appointment.time), 'hh:mm a')}
                     </TableCell>
                       <TableCell className="whitespace-nowrsap hidden sm:table-cell">
                         <StatusBadge status={appointment.status} />
