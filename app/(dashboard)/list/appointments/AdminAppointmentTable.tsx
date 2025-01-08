@@ -99,7 +99,20 @@ export function AdminAppointmentTable({
                 })()}
                       </TableCell>
                       <TableCell>
-                   {  format(new Date(appointment.time), 'hh:mm a')}
+                      {(() => {
+                  const isoTime = appointment.time.toISOString();
+                  const timeString = isoTime.split('T')[1].split('.')[0];
+                  const [hours, minutes] = timeString.split(':').map(Number);
+                  
+                  // Convert to 12-hour format
+                  const hour12 = hours % 12 || 12;
+                  const period = hours >= 12 ? 'PM' : 'AM';
+                  
+                  // Format minutes to always show two digits
+                  const formattedMinutes = minutes.toString().padStart(2, '0');
+                  
+                  return `${hour12}:${formattedMinutes} ${period}`;
+                })()}
                     </TableCell>
                       <TableCell className="whitespace-nowrsap hidden sm:table-cell">
                         <StatusBadge status={appointment.status} />
