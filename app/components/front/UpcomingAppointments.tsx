@@ -28,9 +28,29 @@ export default function UpcomingAppointments({ appointments }: UpcomingAppointme
               <p className="font-medium">{appointment.pet.name}</p>
               <p className="text-sm text-gray-600">{appointment.service.name}</p>
               <div className="text-sm text-gray-500 flex items-center gap-2">
-                <span>{formatDate(appointment.date)}</span>
+                <span>{(() => {
+                  const isoDate = appointment.date.toISOString();
+                  const [datePart] = isoDate.split("T");
+                  const [year, month, day] = datePart.split("-");
+                  
+                  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                  return `${monthNames[parseInt(month, 10) - 1]} ${parseInt(day, 10)}, ${year}`;
+                })()}</span>
                 <span>•</span>
-                <span>{format(new Date(appointment.time), 'hh:mm a')}</span>
+                <span>{(() => {
+                  const isoTime = appointment.time.toISOString();
+                  const timeString = isoTime.split('T')[1].split('.')[0];
+                  const [hours, minutes] = timeString.split(':').map(Number);
+                  
+                  // Convert to 12-hour format
+                  const hour12 = hours % 12 || 12;
+                  const period = hours >= 12 ? 'PM' : 'AM';
+                  
+                  // Format minutes to always show two digits
+                  const formattedMinutes = minutes.toString().padStart(2, '0');
+                  
+                  return `${hour12}:${formattedMinutes} ${period}`;
+                })()}</span>
               </div>
             </li>
           ))}

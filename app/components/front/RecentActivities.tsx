@@ -1,5 +1,5 @@
-import { formatDate } from "@/lib/dateFormat";
-  import { Activity } from '@/types/activity';
+import { formatDate, formatTime } from "@/lib/dateFormat";
+import { Activity } from '@/types/activity';
 
 interface RecentActivitiesProps {
   activities: Activity[];
@@ -18,7 +18,9 @@ export default function RecentActivities({ activities }: RecentActivitiesProps) 
           {activities.map((activity) => (
             <li key={activity.id} className="border-b pb-2">
               <p className="font-medium">{activity.description}</p>
-              <p className="text-sm text-gray-500">{formatDate(activity.date)}</p>
+              <p className="text-sm text-gray-500">
+                {formatDate(new Date(activity.date))} • {formatTime(new Date(activity.date))}
+              </p>
               <span className="text-xs bg-gray-200 px-2 py-1 rounded-full">{activity.type}</span>
             </li>
           ))}

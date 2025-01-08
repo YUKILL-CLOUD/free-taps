@@ -20,6 +20,7 @@ import {
   Cake,
   Transgender 
 } from '@mui/icons-material';
+import { formatDate, formatTime } from "@/lib/dateFormat";
 
 type PetWithRelations = Pet & {
   appointments: Appointment[];
@@ -197,20 +198,32 @@ const SinglePetPage = async ({ params, searchParams }: {
         </div>
 
         <div className="w-full xl:w-1/3 flex flex-col gap-4 mt-4">
-
-          <div className="bg-white p-4 rounded-md">
-            <h2 className="text-lg font-semibold mb-2">Upcoming Appointments</h2>
-            {pet.appointments.filter(app => new Date(app.date) > new Date()).length > 0 ? (
-              pet.appointments.filter(app => new Date(app.date) > new Date()).map((app) => (
-                <div key={app.id} className="mb-2 p-2 bg-gray-100 rounded">
-                  <p className="font-medium">{app.date.toDateString()}</p>
-                  <p>Status: {app.status}</p>
-                </div>
-              ))
+        <div className="bg-white p-4 rounded-md">
+          <h2 className="text-lg font-semibold mb-2">Upcoming Appointments</h2>
+          <div className={`${pet.appointments.filter(app => 
+            new Date(app.date) > new Date() && 
+            app.status === 'scheduled'
+          ).length > 5 ? 'max-h-[300px] overflow-y-auto' : ''}`}>
+            {pet.appointments.filter(app => 
+              new Date(app.date) > new Date() && 
+              app.status === 'scheduled'
+            ).length > 0 ? (
+              pet.appointments
+                .filter(app => 
+                  new Date(app.date) > new Date() && 
+                  app.status === 'scheduled'
+                )
+                .map((app) => (
+                  <div key={app.id} className="mb-2 p-2 bg-gray-100 rounded">
+                    <p className="font-medium">{formatDate(app.date)} • {formatTime(app.time)}</p>
+                    <p>Status: {app.status}</p>
+                  </div>
+                ))
             ) : (
               <p className="text-gray-500 italic">No upcoming appointments</p>
             )}
           </div>
+        </div>
   
    {isAdmin && (
           <div className="bg-white p-4 rounded-md shadow-md">

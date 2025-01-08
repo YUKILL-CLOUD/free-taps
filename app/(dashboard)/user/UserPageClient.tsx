@@ -38,13 +38,32 @@ export default function UserPageClient({
           <h1 className="text-xl font-semibold mb-4">Schedule</h1>
           <div style={{ height: '500px' }}>
             <BigCalendar
-              events={upcomingAppointments.map(appointment => ({
-                title: `${appointment.pet.name}`,
-                fullTitle: `${appointment.pet.name} - ${appointment.service.name}`,
-                start: new Date(appointment.date),
-                end: new Date(appointment.date),
-                allDay: true,
-              }))}
+              events={upcomingAppointments.map(appointment => {
+                // Get the date parts
+                const isoDate = appointment.date.toISOString();
+                const [datePart] = isoDate.split("T");
+                
+                // Get the time parts
+                const isoTime = appointment.time.toISOString();
+                const timeString = isoTime.split('T')[1].split('.')[0];
+                const [hours, minutes] = timeString.split(':').map(Number);
+                
+                // Create start date with combined date and time
+                const startDate = new Date(datePart);
+                startDate.setHours(hours, minutes, 0, 0);
+                
+                // Create end date (1 hour after start)
+                const endDate = new Date(startDate);
+                endDate.setHours(startDate.getHours() + 1);
+                
+                return {
+                  title: `${appointment.pet.name}`,
+                  fullTitle: `${appointment.pet.name} - ${appointment.service.name}`,
+                  start: startDate,
+                  end: endDate,
+                  allDay: false,
+                };
+              })}
             />
           </div>
         </div>

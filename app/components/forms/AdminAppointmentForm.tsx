@@ -37,6 +37,7 @@ export function AdminAppointmentForm({ onClose, onFormSubmit, services }: AdminA
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
   const [isLoadingPets, setIsLoadingPets] = useState(false);
   const [isLoadingTimes, setIsLoadingTimes] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   useEffect(() => {
     const loadPets = async () => {
       if (!selectedUser) return;
@@ -227,30 +228,45 @@ export function AdminAppointmentForm({ onClose, onFormSubmit, services }: AdminA
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2" ref={searchRef}>
         <Label htmlFor="owner" className="text-sm font-medium">Owner</Label>
-        <Input
-          type="text"
-          id="owner"
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setShowSuggestions(true);
-          }}
-          placeholder="Search by name or email..."
-          className="w-full"
-          required
-        />
-        {showSuggestions && searchTerm && (
+        <div className="relative">
+          <Input
+            type="text"
+            id="owner"
+            value={searchTerm}
+            onChange={async (e) => {
+              setSearchTerm(e.target.value);
+              setShowSuggestions(true);
+              setIsSearching(true);
+              // Add debounce delay
+              await new Promise(resolve => setTimeout(resolve, 300));
+              setIsSearching(false);
+            }}
+            placeholder="Search by name or email..."
+            className="w-full"
+            required
+          />
+          {isSearching && (
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+              <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+            </div>
+          )}
+        </div>
+        {showSuggestions && searchTerm && !isSearching && (
           <div className="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg max-h-60 overflow-auto">
-            {filteredUsers.map((user) => (
-              <div
-                key={user.id}
-                className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                onClick={() => handleUserSelect(user)}
-              >
-                <div className="font-medium">{`${user.firstName} ${user.lastName}`}</div>
-                <div className="text-sm text-gray-500">{user.email}</div>
-              </div>
-            ))}
+            {filteredUsers.length > 0 ? (
+              filteredUsers.map((user) => (
+                <div
+                  key={user.id}
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleUserSelect(user)}
+                >
+                  <div className="font-medium">{`${user.firstName} ${user.lastName}`}</div>
+                  <div className="text-sm text-gray-500">{user.email}</div>
+                </div>
+              ))
+            ) : (
+              <div className="px-4 py-2 text-sm text-gray-500">No users found</div>
+            )}
           </div>
         )}
       </div>
