@@ -36,11 +36,31 @@ export function ViewAppointmentModal({ isOpen, onClose, appointment }: ViewAppoi
             </div>
             <div>
               <h3 className="font-semibold">Date</h3>
-              <p>{format(new Date(appointment.date), 'MMMM dd, yyyy')}</p>
+              <p>{(() => {
+                  const isoDate = appointment.date.toISOString();
+                  const [datePart] = isoDate.split("T");
+                  const [year, month, day] = datePart.split("-");
+                  
+                  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                  return `${monthNames[parseInt(month, 10) - 1]} ${parseInt(day, 10)}, ${year}`;
+                })()}</p>
             </div>
             <div>
               <h3 className="font-semibold">Time</h3>
-              <p>{format(new Date(appointment.time), 'hh:mm a')}</p>
+              <p> {(() => {
+                  const isoTime = appointment.time.toISOString();
+                  const timeString = isoTime.split('T')[1].split('.')[0];
+                  const [hours, minutes] = timeString.split(':').map(Number);
+                  
+                  // Convert to 12-hour format
+                  const hour12 = hours % 12 || 12;
+                  const period = hours >= 12 ? 'PM' : 'AM';
+                  
+                  // Format minutes to always show two digits
+                  const formattedMinutes = minutes.toString().padStart(2, '0');
+                  
+                  return `${hour12}:${formattedMinutes} ${period}`;
+                })()}</p>
             </div>
           </div>
           <div className="border-t pt-4">

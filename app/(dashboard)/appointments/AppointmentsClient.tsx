@@ -95,8 +95,8 @@ export default function AppointmentsClient({
         <AppointmentFormModal pets={pets} services={services} onAppointmentCreated={refreshAppointments} />
       </div>
 
-      <Tabs defaultValue="scheduled" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+      <Tabs defaultValue="scheduled" className="w-full space-y-2 sm:space-y-4">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6 sm:mb-8">
           <TabsTrigger value="pending">
             Pending ({counts.pending})
           </TabsTrigger>
