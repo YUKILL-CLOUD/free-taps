@@ -20,16 +20,6 @@ interface BigCalendarProps {
   }>;
 }
 
-
-interface Appointment {
-    id: string;
-    title: string;
-    date: Date;
-    time: string;
-    description: string;
-    status: string;
-  }
-
 const BigCalendarAdmin = ({ events }: BigCalendarProps) => {
   const [view, setView] = useState<View>(Views.MONTH);
   const [date, setDate] = useState(new Date());
