@@ -35,13 +35,36 @@ const AdminPage = async () => {
     
   });
  // Format appointments for the EventCalendar component
- const formattedAppointments = upcomingAppointments.map(appointment => ({
-  id: appointment.id,
-  title: `${appointment.pet.name} - ${appointment.service.name}`,
-  date: appointment.date,
-  time: appointment.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-  description: `Owner: ${appointment.user.firstName} ${appointment.user.lastName}`,
-}));
+ const formattedAppointments = upcomingAppointments.map(appointment => {
+   // Get the date parts
+   const isoDate = appointment.date.toISOString();
+   const [datePart] = isoDate.split("T");
+   const [year, month, day] = datePart.split("-");
+   
+   // Get the time parts
+   const isoTime = appointment.time.toISOString();
+   const timeString = isoTime.split('T')[1].split('.')[0];
+   const [hours, minutes] = timeString.split(':').map(Number);
+   
+   // Convert to 12-hour format
+   const hour12 = hours % 12 || 12;
+   const period = hours >= 12 ? 'PM' : 'AM';
+   const formattedMinutes = minutes.toString().padStart(2, '0');
+   const formattedTime = `${hour12}:${formattedMinutes} ${period}`;
+
+   // Format date
+   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+   const formattedDate = `${monthNames[parseInt(month, 10) - 1]} ${parseInt(day, 10)}, ${year}`;
+
+   return {
+     id: appointment.id,
+     title: `${appointment.pet.name} - ${appointment.service.name}`,
+     date: new Date(formattedDate),
+     time: formattedTime,
+     description: `Owner: ${appointment.user.firstName} ${appointment.user.lastName}`,
+     status: appointment.status,
+   };
+ });
 
   async function getAppointmentData(): Promise<AppointmentData[]> {
     const thirtyDaysAgo = new Date();
@@ -123,8 +146,8 @@ const AdminPage = async () => {
       {/* RIGHT */}
       <div className="w-full lg:w-1/3 flex flex-col gap-8">
         <div className="shadow-lg hover:shadow-xl transition-shadow duration-300">
-          {/* <EventCalendar appointments={formattedAppointments} /> */}
-          <BigCalendarAdmin
+          <EventCalendar appointments={formattedAppointments} />
+          {/* <BigCalendarAdmin
             events={upcomingAppointments.map(appointment => {
               // Get the date parts
               const isoDate = appointment.date.toISOString();
@@ -152,7 +175,7 @@ const AdminPage = async () => {
                 allDay: false,
               };
             })}
-          />
+          /> */}
         </div>
       </div>
     </div>
