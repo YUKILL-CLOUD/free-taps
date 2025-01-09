@@ -423,19 +423,18 @@ export const createAppointment = async (
 
     date.setHours(hour, parseInt(minutes, 10));
 
-//TODO - ONLY CHECK THE SCHEDULED APPOINTMENT
-
     // Check if the appointment slot is already taken
-    // const existingAppointment = await prisma.appointment.findFirst({
-    //   where: {
-    //     date: date,
-    //     time: date,
-    //   },
-    // });
+    const existingAppointment = await prisma.appointment.findFirst({
+      where: {
+        date: date,
+        time: date,
+        status: "scheduled",
+      },
+    });
 
-    // if (existingAppointment) {
-    //   return { success: false, error: 'This time slot has just been booked. Please choose another time.' };
-    // }
+    if (existingAppointment) {
+      return { success: false, error: 'This time slot has just been booked. Please choose another time.' };
+    }
 
     // Create the new appointment
     const newAppointment = await prisma.appointment.create({
@@ -934,30 +933,33 @@ export async function updateMissedAppointments() {
 
   return missedAppointments.length;
 }
-export async function getBookedTimes(date: string): Promise<Date[]> {
+export async function getBookedTimes(date: string): Promise<string[]> {
   try {
     const selectedDate = new Date(date);
-    // Set time to start of day
+    // Set time to start of day in local timezone
     selectedDate.setHours(0, 0, 0, 0);
-    
+
     const nextDate = new Date(selectedDate);
     nextDate.setDate(nextDate.getDate() + 1);
 
+    console.log('Filtering dates between:', selectedDate, 'and', nextDate);
+
+    // Fetch booked times from the database
     const bookedTimes = await prisma.appointment.findMany({
       where: {
         AND: [
           {
             date: {
               gte: selectedDate,
-              lt: nextDate
-            }
+              lt: nextDate,
+            },
           },
           {
             status: {
-              in: ['scheduled',]
-            }
-          }
-        ]
+              in: ['scheduled'],
+            },
+          },
+        ],
       },
       select: {
         date: true,
@@ -965,13 +967,29 @@ export async function getBookedTimes(date: string): Promise<Date[]> {
       },
     });
 
-    console.log('Database booked times:', bookedTimes); // Debug log
-    return bookedTimes.map(appointment => appointment.time);
+    console.log('Raw Database booked times:', bookedTimes);
+
+    // Return the formatted appointment times
+    return bookedTimes.map(appointment => {
+      const isoTime = appointment.time.toISOString();
+      const timeString = isoTime.split('T')[1].split('.')[0];
+      const [hours, minutes] = timeString.split(':').map(Number);
+
+      // Convert to 12-hour format
+      const hour12 = hours % 12 || 12;
+      const period = hours >= 12 ? 'PM' : 'AM';
+      const formattedMinutes = minutes.toString().padStart(2, '0');
+
+      const formattedTime = `${hour12}:${formattedMinutes} ${period}`;
+      console.log('Formatted time:', formattedTime, 'from:', isoTime);
+      return formattedTime;
+    });
   } catch (error) {
     console.error('Error fetching booked times:', error);
     return [];
   }
 }
+
 //vaccination
 export async function createVaccinationRecord(data: FormData, appointmentId: string) {
   try {

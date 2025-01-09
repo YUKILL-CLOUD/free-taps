@@ -55,7 +55,7 @@ export function AppointmentForm({ pets, services, onClose, onAppointmentCreated 
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>('');
-  const [bookedTimes, setBookedTimes] = useState<Date[]>([]);
+  const [bookedTimes, setBookedTimes] = useState<string[]>([]);
   const searchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -64,8 +64,8 @@ export function AppointmentForm({ pets, services, onClose, onAppointmentCreated 
       
       try {
         const bookedTimesData = await getBookedTimes(selectedDate);
-        console.log('Booked times:', bookedTimesData); // Debug log
-        setBookedTimes(bookedTimesData.map(time => new Date(time)));
+        console.log('Booked times:', bookedTimesData);
+        setBookedTimes(bookedTimesData);
       } catch (error) {
         console.error('Error loading booked times:', error);
         toast.error('Failed to load booked time slots');
@@ -137,9 +137,11 @@ export function AppointmentForm({ pets, services, onClose, onAppointmentCreated 
   const isTimeBooked = (time: string) => {
     if (!selectedDate || !bookedTimes.length) return false;
 
+    // Parse the input time
     const [timeStr, period] = time.split(' ');
     const [hours, minutes] = timeStr.split(':');
     let hour = parseInt(hours);
+    
     // Convert to 24-hour format
     if (period.toUpperCase() === 'PM' && hour !== 12) {
       hour += 12;
@@ -147,14 +149,29 @@ export function AppointmentForm({ pets, services, onClose, onAppointmentCreated 
       hour = 0;
     }
 
-    // Create a date object for comparison
-    const timeToCheck = new Date(selectedDate);
-    timeToCheck.setHours(hour, parseInt(minutes), 0, 0);
+    console.log('Checking time:', time);
+    console.log('Converted to 24h format:', `${hour}:${minutes}`);
+    console.log('All booked times:', bookedTimes);
 
     return bookedTimes.some(bookedTime => {
-      const bookedDateTime = new Date(bookedTime);
-      return bookedDateTime.getHours() === timeToCheck.getHours() && 
-             bookedDateTime.getMinutes() === timeToCheck.getMinutes();
+      // Split the booked time string (format: "HH:mm AM/PM")
+      const [bookedTimeStr, bookedPeriod] = bookedTime.split(' ');
+      const [bookedHours, bookedMinutes] = bookedTimeStr.split(':');
+      let bookedHour = parseInt(bookedHours);
+
+      // Convert booked time to 24-hour format
+      if (bookedPeriod.toUpperCase() === 'PM' && bookedHour !== 12) {
+        bookedHour += 12;
+      } else if (bookedPeriod.toUpperCase() === 'AM' && bookedHour === 12) {
+        bookedHour = 0;
+      }
+
+      const isBooked = bookedHour === hour && parseInt(bookedMinutes) === parseInt(minutes);
+      if (isBooked) {
+        console.log('Found matching booked time:', bookedTime);
+        console.log('Comparing:', `${hour}:${minutes}`, 'with', `${bookedHour}:${bookedMinutes}`);
+      }
+      return isBooked;
     });
   };
 
