@@ -38,38 +38,92 @@ export function UpdateAppointmentForm({ appointment, onClose }: UpdateAppointmen
   const { register, handleSubmit, setValue } = useForm({
     defaultValues: {
       date: new Date(appointment.date).toISOString().split('T')[0],
-      time: new Date(appointment.time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      time: (() => {
+        const isoTime = appointment.time.toISOString();
+        const timeString = isoTime.split('T')[1].split('.')[0];
+        const [hours, minutes] = timeString.split(':').map(Number);
+        
+        // Convert to 12-hour format
+        const hour12 = hours % 12 || 12;
+        const period = hours >= 12 ? 'PM' : 'AM';
+        const formattedMinutes = minutes.toString().padStart(2, '0');
+        
+        return `${hour12}:${formattedMinutes} ${period}`;
+      })(),
       notes: appointment.notes || '',
     },
   });
   const [selectedDate, setSelectedDate] = useState<string>(new Date(appointment.date).toISOString().split('T')[0]);
-  const [bookedTimes, setBookedTimes] = useState<Date[]>([]);
+  const [bookedTimes, setBookedTimes] = useState<string[]>([]);
 
   useEffect(() => {
-    if (selectedDate) {
-      getBookedTimes(selectedDate).then(times => 
-        setBookedTimes(times.filter(time => 
-          new Date(time).getTime() !== new Date(appointment.time).getTime()
-        ))
-      );
-    }
+    const loadBookedTimes = async () => {
+      if (!selectedDate) return;
+      
+      try {
+        const bookedTimesData = await getBookedTimes(selectedDate);
+        console.log('Booked times:', bookedTimesData);
+        // Filter out the current appointment's time
+        setBookedTimes(bookedTimesData.filter(time => {
+          const currentAppointmentTime = (() => {
+            const isoTime = appointment.time.toISOString();
+            const timeString = isoTime.split('T')[1].split('.')[0];
+            const [hours, minutes] = timeString.split(':').map(Number);
+            const hour12 = hours % 12 || 12;
+            const period = hours >= 12 ? 'PM' : 'AM';
+            const formattedMinutes = minutes.toString().padStart(2, '0');
+            return `${hour12}:${formattedMinutes} ${period}`;
+          })();
+          return time !== currentAppointmentTime;
+        }));
+      } catch (error) {
+        console.error('Error loading booked times:', error);
+        toast.error('Failed to load booked time slots');
+      }
+    };
+
+    loadBookedTimes();
   }, [selectedDate, appointment.time]);
 
   const isTimeBooked = (time: string) => {
-    const [hours, minutes] = time.split(':');
-    let hourNum = parseInt(hours, 10);
-    const period = time.slice(-2).toLowerCase();
+    if (!selectedDate || !bookedTimes.length) return false;
+
+    // Parse the input time
+    const [timeStr, period] = time.split(' ');
+    const [hours, minutes] = timeStr.split(':');
+    let hour = parseInt(hours);
     
-    if (period === 'pm' && hourNum !== 12) {
-      hourNum += 12;
-    } else if (period === 'am' && hourNum === 12) {
-      hourNum = 0;
+    // Convert to 24-hour format
+    if (period.toUpperCase() === 'PM' && hour !== 12) {
+      hour += 12;
+    } else if (period.toUpperCase() === 'AM' && hour === 12) {
+      hour = 0;
     }
-    
-    return bookedTimes.some(bookedTime => 
-      bookedTime.getHours() === hourNum && 
-      bookedTime.getMinutes() === parseInt(minutes, 10)
-    );
+
+    console.log('Checking time:', time);
+    console.log('Converted to 24h format:', `${hour}:${minutes}`);
+    console.log('All booked times:', bookedTimes);
+
+    return bookedTimes.some(bookedTime => {
+      // Split the booked time string (format: "HH:mm AM/PM")
+      const [bookedTimeStr, bookedPeriod] = bookedTime.split(' ');
+      const [bookedHours, bookedMinutes] = bookedTimeStr.split(':');
+      let bookedHour = parseInt(bookedHours);
+
+      // Convert booked time to 24-hour format
+      if (bookedPeriod.toUpperCase() === 'PM' && bookedHour !== 12) {
+        bookedHour += 12;
+      } else if (bookedPeriod.toUpperCase() === 'AM' && bookedHour === 12) {
+        bookedHour = 0;
+      }
+
+      const isBooked = bookedHour === hour && parseInt(bookedMinutes) === parseInt(minutes);
+      if (isBooked) {
+        console.log('Found matching booked time:', bookedTime);
+        console.log('Comparing:', `${hour}:${minutes}`, 'with', `${bookedHour}:${bookedMinutes}`);
+      }
+      return isBooked;
+    });
   };
 
   const onSubmit = async (data: any) => {
