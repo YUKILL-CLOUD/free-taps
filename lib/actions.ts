@@ -523,6 +523,7 @@ export const createAppointmentsAdmin = async (
         date: date,
         time: date,
         status: "scheduled",
+        notes: data.notes as string || null,
       },
       include: {
         pet: true,
@@ -541,6 +542,7 @@ export const createAppointmentsAdmin = async (
           serviceName: newAdminAppointment.service.name,
           date: newAdminAppointment.date,
           time: newAdminAppointment.time,
+          notes: newAdminAppointment.notes,
         }
       );
     }

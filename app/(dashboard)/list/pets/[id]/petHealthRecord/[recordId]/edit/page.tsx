@@ -86,7 +86,7 @@ export default async function EditHealthRecordPage({
     <div className="container mx-auto p-4">
       <div className="flex items-center gap-4 mb-6">
         <Link href={`/list/pets/${healthRecord.petId}/petHealthRecord/${recordId}`}>
-          <button className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition duration-200">
+          <button className="bg-mainColor-400 hover:bg-mainColor-600 text-white font-bold py-2 px-4 rounded transition duration-200">
             Go Back
           </button>
         </Link>

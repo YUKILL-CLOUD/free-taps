@@ -102,7 +102,7 @@ export default async function HealthRecordPage({
       
       <div className="mt-6 flex space-x-4">
         <Link href={`/list/pets/${healthRecord.petId}`}>
-          <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-200">
+          <button className="bg-blue-600 bg-mainColor-700 hover:bg-mainColor-400 text-white font-bold py-2 px-4 rounded transition duration-200">
             Back to Pet Details
           </button>
         </Link>

@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { UserData } from '@/types/user';
 import { Pet, Service } from '@prisma/client';
+import { Textarea } from "@/components/ui/textarea";
 
 interface AdminAppointmentFormProps {
   onClose: () => void;
@@ -38,6 +39,7 @@ export function AdminAppointmentForm({ onClose, onFormSubmit, services }: AdminA
   const [isLoadingPets, setIsLoadingPets] = useState(false);
   const [isLoadingTimes, setIsLoadingTimes] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [notes, setNotes] = useState<string>('');
   useEffect(() => {
     const loadPets = async () => {
       if (!selectedUser) return;
@@ -203,6 +205,7 @@ export function AdminAppointmentForm({ onClose, onFormSubmit, services }: AdminA
       formData.append('serviceId', selectedService);
       formData.append('date', selectedDate);
       formData.append('time', selectedTime);
+      formData.append('notes', notes);
 
       const result = await createAppointmentsAdmin(formData);
       
@@ -215,6 +218,7 @@ export function AdminAppointmentForm({ onClose, onFormSubmit, services }: AdminA
         setSelectedService('');
         setSelectedDate('');
         setSelectedTime('');
+        setNotes('');
       } else {
         toast.error(result.error || 'Failed to create appointment');
       }
@@ -384,6 +388,17 @@ export function AdminAppointmentForm({ onClose, onFormSubmit, services }: AdminA
             ? "Sunday: 8:00 AM - 12:00 PM"
             : "Business Hours: 8:00 AM - 5:00 PM (Lunch Break: 12:00 PM - 1:00 PM)"}
         </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="notes" className="text-sm font-medium">Notes (optional)</Label>
+        <Textarea 
+          id="notes" 
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          className="min-h-[100px]"
+          placeholder="Add any additional notes here..."
+        />
       </div>
 
       <Button 

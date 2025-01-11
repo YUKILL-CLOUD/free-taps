@@ -18,7 +18,7 @@ export default function ContactNumbers() {
                     <path opacity="0.5" d="M16.1007 13.3589C16.1007 13.3589 15.0181 14.4353 12.0631 11.4971C9.10807 8.55886 10.1907 7.48242 10.1907 7.48242" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
             ),
-            contact: "320 1383"
+            contact: "0906 123 4567	"
         },
         
         {
@@ -34,7 +34,7 @@ export default function ContactNumbers() {
                     <path d="M4 7.00005L10.2 11.65C11.2667 12.45 12.7333 12.45 13.8 11.65L20 7" stroke="#000000" stroke-width="1.32" stroke-linecap="round" stroke-linejoin="round"/> <rect x="3" y="5" width="18" height="14" rx="2" stroke="#000000" stroke-width="1.32" stroke-linecap="round"/>
                 </svg>
             ),
-            contact: "info@example.com"
+            contact: "petcare@gmail.com"
         }
     ];
 

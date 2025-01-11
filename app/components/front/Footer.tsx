@@ -5,9 +5,8 @@ export default function Footer() {
   const currentYear = new Date().getFullYear()
   
   const footerLinks = [
-    { name: 'About', href: '/home' },
     { name: 'Services', href: '/list/services' },
-    { name: 'Privacy Policy', href: '/privacy' },
+    { name: 'Privacy Policy', href: 'https://www.termsfeed.com/live/403a22ed-be22-480a-996b-43a41d4c00a9' },
     { name: 'Contact', href: '/contact' },
   ]
 
@@ -26,14 +25,27 @@ export default function Footer() {
           <ul className="flex flex-wrap items-center mt-3 text-sm font-medium text-white/90 sm:mt-0">
             {footerLinks.map((link, index) => (
               <li key={index}>
-                <Link 
-                  href={link.href}
-                  className={`hover:text-white transition-colors ${
-                    index < footerLinks.length - 1 ? 'mr-6' : ''
-                  }`}
-                >
-                  {link.name}
-                </Link>
+                {link.href.startsWith('http') ? (
+                  <a 
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`hover:text-white transition-colors ${
+                      index < footerLinks.length - 1 ? 'mr-6' : ''
+                    }`}
+                  >
+                    {link.name}
+                  </a>
+                ) : (
+                  <Link 
+                    href={link.href}
+                    className={`hover:text-white transition-colors ${
+                      index < footerLinks.length - 1 ? 'mr-6' : ''
+                    }`}
+                  >
+                    {link.name}
+                  </Link>
+                )}
               </li>
             ))}
           </ul>
