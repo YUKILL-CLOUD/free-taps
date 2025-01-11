@@ -23,14 +23,26 @@ const UserCard = async ({
       missed: missedCount,
     };
   } else if (type === "pet") {
-    const [dogCount, catCount, otherCount] = await Promise.all([
+    const [dogCount, catCount, fishCount, birdCount, reptileCount, rabbitCount, rodentsCount, otherCount] = await Promise.all([
       prisma.pet.count({ where: { type: { equals: 'DOG', mode: 'insensitive' } } }),
       prisma.pet.count({ where: { type: { equals: 'CAT', mode: 'insensitive' } } }),
+      prisma.pet.count({ where: { type: { equals: 'FISH', mode: 'insensitive' } } }),
+      prisma.pet.count({ where: { type: { equals: 'BIRD', mode: 'insensitive' } } }),
+      prisma.pet.count({ where: { type: { equals: 'REPTILE', mode: 'insensitive' } } }),
+      prisma.pet.count({ where: { type: { equals: 'RABBIT', mode: 'insensitive' } } }),
+      prisma.pet.count({ where: { type: { equals: 'RODENTS', mode: 'insensitive' } } }),
+      prisma.pet.count({ where: { type: { equals: 'OTHERS', mode: 'insensitive' } } }),
       prisma.pet.count({ 
         where: { 
           NOT: [
             { type: { equals: 'DOG', mode: 'insensitive' } },
-            { type: { equals: 'CAT', mode: 'insensitive' } }
+            { type: { equals: 'CAT', mode: 'insensitive' } },
+            { type: { equals: 'FISH', mode: 'insensitive' } },
+            { type: { equals: 'BIRD', mode: 'insensitive' } },
+            { type: { equals: 'REPTILE', mode: 'insensitive' } },
+            { type: { equals: 'RABBIT', mode: 'insensitive' } },
+            { type: { equals: 'RODENTS', mode: 'insensitive' } },
+            { type: { equals: 'OTHERS', mode: 'insensitive' } }
           ]
         } 
       })
@@ -39,6 +51,11 @@ const UserCard = async ({
     data = {
       dog: dogCount,
       cat: catCount,
+      fish: fishCount,
+      bird: birdCount,
+      reptile: reptileCount,
+      rabbit: rabbitCount,
+      rodents: rodentsCount,
       other: otherCount,
     };
   } else if (type === "user") {
@@ -69,11 +86,20 @@ const UserCard = async ({
           <h1 className="text-sm font-medium text-gray-700 my-4">{data?.missed} Missed</h1>
         </>
       ) : type === "pet" ? (
-        <>
-          <h1 className="text-sm font-medium text-gray-700 my-4">{data?.dog} Dogs</h1>
-          <h1 className="text-sm font-medium text-gray-700 my-4">{data?.cat} Cats</h1>
-          <h1 className="text-sm font-medium text-gray-700 my-4">{data?.other} Others</h1>
-        </>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col">
+            <h1 className="text-sm font-medium text-gray-700 my-2">{data?.dog} Dogs</h1>
+            <h1 className="text-sm font-medium text-gray-700 my-2">{data?.cat} Cats</h1>
+            <h1 className="text-sm font-medium text-gray-700 my-2">{data?.fish} Fish</h1>
+            <h1 className="text-sm font-medium text-gray-700 my-2">{data?.bird} Bird</h1>
+          </div>
+          <div className="flex flex-col">
+            <h1 className="text-sm font-medium text-gray-700 my-2">{data?.reptile} Reptiles</h1>
+            <h1 className="text-sm font-medium text-gray-700 my-2">{data?.rabbit} Rabbit</h1>
+            <h1 className="text-sm font-medium text-gray-700 my-2">{data?.rodents} Rodents</h1>
+            <h1 className="text-sm font-medium text-gray-700 my-2">{data?.other} Others</h1>
+          </div>
+        </div>
       ) : (
         <>
           <h1 className="text-sm font-medium text-gray-700 my-4">{data?.admin} Admins</h1>

@@ -27,7 +27,7 @@ export function AdminAppointmentForm({ onClose, onFormSubmit, services }: AdminA
   const [selectedService, setSelectedService] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedTime, setSelectedTime] = useState<string>('');
-  const [bookedTimes, setBookedTimes] = useState<Date[]>([]);
+  const [bookedTimes, setBookedTimes] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [users, setUsers] = useState<UserData[]>([]);
   const [pets, setPets] = useState<Pet[]>([]);
@@ -63,8 +63,7 @@ export function AdminAppointmentForm({ onClose, onFormSubmit, services }: AdminA
       setIsLoadingTimes(true);
       try {
         const bookedTimesData = await getBookedTimes(selectedDate);
-        console.log('Booked times:', bookedTimesData); // Debug log
-        setBookedTimes(bookedTimesData.map(time => new Date(time)));
+        setBookedTimes(bookedTimesData);
       } catch (error) {
         console.error('Error loading booked times:', error);
         toast.error('Failed to load booked time slots');
@@ -135,23 +134,23 @@ export function AdminAppointmentForm({ onClose, onFormSubmit, services }: AdminA
     
     if (selectedDay >= 1 && selectedDay <= 6) {
       for (let hour = startHour; hour < endHour; hour++) {
-        if (hour === 12) continue;
+        if (hour === 12) continue; // Skip lunch hour
         for (let minute = 0; minute < 60; minute += 15) {
-          const time = new Date(2000, 0, 1, hour, minute);
-          times.push(time.toLocaleTimeString('en-US', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
-          }));
+          const isPM = hour >= 12;
+          const hourIn12Format = hour % 12 || 12;
+          const period = isPM ? 'PM' : 'AM';
+          const formattedTime = `${hourIn12Format}:${minute.toString().padStart(2, '0')} ${period}`;
+          times.push(formattedTime);
         }
       }
     } else if (selectedDay === 0) {
       for (let hour = startHour; hour < endHour; hour++) {
         for (let minute = 0; minute < 60; minute += 15) {
-          const time = new Date(2000, 0, 1, hour, minute);
-          times.push(time.toLocaleTimeString('en-US', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
-          }));
+          const isPM = hour >= 12;
+          const hourIn12Format = hour % 12 || 12;
+          const period = isPM ? 'PM' : 'AM';
+          const formattedTime = `${hourIn12Format}:${minute.toString().padStart(2, '0')} ${period}`;
+          times.push(formattedTime);
         }
       }
     }
@@ -166,21 +165,24 @@ export function AdminAppointmentForm({ onClose, onFormSubmit, services }: AdminA
     const [hours, minutes] = timeStr.split(':');
     let hour = parseInt(hours);
     
-    // Convert to 24-hour format
     if (period.toUpperCase() === 'PM' && hour !== 12) {
       hour += 12;
     } else if (period.toUpperCase() === 'AM' && hour === 12) {
       hour = 0;
     }
 
-    // Create a date object for comparison
-    const timeToCheck = new Date(selectedDate);
-    timeToCheck.setHours(hour, parseInt(minutes), 0, 0);
-
     return bookedTimes.some(bookedTime => {
-      const bookedDateTime = new Date(bookedTime);
-      return bookedDateTime.getHours() === timeToCheck.getHours() && 
-             bookedDateTime.getMinutes() === timeToCheck.getMinutes();
+      const [bookedTimeStr, bookedPeriod] = bookedTime.split(' ');
+      const [bookedHours, bookedMinutes] = bookedTimeStr.split(':');
+      let bookedHour = parseInt(bookedHours);
+
+      if (bookedPeriod.toUpperCase() === 'PM' && bookedHour !== 12) {
+        bookedHour += 12;
+      } else if (bookedPeriod.toUpperCase() === 'AM' && bookedHour === 12) {
+        bookedHour = 0;
+      }
+
+      return bookedHour === hour && parseInt(bookedMinutes) === parseInt(minutes);
     });
   };
 
@@ -355,8 +357,6 @@ export function AdminAppointmentForm({ onClose, onFormSubmit, services }: AdminA
                 const isBooked = isTimeBooked(time);
                 const timeObj = new Date(`2000/01/01 ${time}`);
                 const hour = timeObj.getHours();
-                const isPM = hour >= 12;
-                const period = isPM ? 'PM' : 'AM';
                 
                 return (
                   <SelectItem 
