@@ -36,6 +36,11 @@ interface VaccinationModalProps {
 export function VaccinationModal({ isOpen, onClose, appointment, onFormSubmit, refreshAppointments, veterinarians }: VaccinationModalProps) {
   const handleSubmit = async (formData: FormData) => {
     try {
+      const notes = formData.get('notes')?.toString() || '';
+      if (notes) {
+        formData.set('notes', notes);
+      }
+
       const result = await createVaccinationRecord(formData, appointment.id) as VaccinationResponse;
       if (result.success) { 
         toast.success('Vaccination record added successfully');
@@ -64,6 +69,7 @@ export function VaccinationModal({ isOpen, onClose, appointment, onFormSubmit, r
               nextAppointmentData.append('date', nextDate.toISOString().split('T')[0]);
               nextAppointmentData.append('time', '09:00 AM');
               nextAppointmentData.append('status', 'pending');
+              nextAppointmentData.append('notes', 'Follow-up vaccination appointment');
 
               const appointmentResult = await createAppointmentsAdmin(nextAppointmentData);
 

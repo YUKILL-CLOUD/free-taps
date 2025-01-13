@@ -24,6 +24,12 @@ interface DewormingResponse {
 export function DewormingModal({ isOpen, onClose, appointment, onFormSubmit, veterinarians }: DewormingModalProps) {
   const handleSubmit = async (formData: FormData) => {
     try {
+      // Add notes to the form data if provided
+      const notes = formData.get('notes')?.toString() || '';
+      if (notes) {
+        formData.set('notes', notes);
+      }
+
       const result = await createDewormingRecord(formData, appointment.id) as DewormingResponse;
       
       if (result.success) {
@@ -49,6 +55,7 @@ export function DewormingModal({ isOpen, onClose, appointment, onFormSubmit, vet
               nextAppointmentData.append('serviceId', appointment.serviceId);
               nextAppointmentData.append('date', nextDate.toISOString().split('T')[0]);
               nextAppointmentData.append('time', '09:00 AM');
+              nextAppointmentData.append('notes', 'Follow-up deworming appointment');
               
               const appointmentResult = await createAppointmentsAdmin(nextAppointmentData);
 

@@ -71,7 +71,7 @@ export default async function DewormingRecordPage({
       </div>
       <div className="flex justify-end space-x-4">
         <Link href={`/list/pets/${dewormingRecord.petId}`}>
-          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          <button className="bg-mainColor-400 hover:bg-mainColor-600 text-white font-bold py-2 px-4 rounded">
             Back to Pet Details
           </button>
         </Link>

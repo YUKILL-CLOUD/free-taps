@@ -18,7 +18,8 @@ import {
   Bloodtype, 
   CalendarMonth, 
   Cake,
-  Transgender 
+  Male,
+  Female 
 } from '@mui/icons-material';
 import { formatDate, formatTime } from "@/lib/dateFormat";
 
@@ -151,7 +152,11 @@ const SinglePetPage = async ({ params, searchParams }: {
                 <span>{pet.birthday.toDateString()}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Transgender className="w-6 h-6 text-mainColor-600" />
+                {pet.sex === 'Male' ? (
+                  <Male className="w-6 h-6 text-mainColor-600" />
+                ) : (
+                  <Female className="w-6 h-6 text-mainColor-600" />
+                )}
                 <span>{(pet.sex).charAt(0).toUpperCase() + pet.sex.slice(1)}</span>
               </div>
               <div className="flex items-center gap-2">

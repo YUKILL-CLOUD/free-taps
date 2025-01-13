@@ -29,7 +29,7 @@ const ClientPagination = ({ page, count, onPageChange }: ClientPaginationProps) 
             <button
               key={pageIndex}
               className={`px-2 rounded-sm ${
-                page === pageIndex ? "bg-lamaSky" : ""
+                page === pageIndex ? "bg-mainColor-light" : ""
               }`}
               onClick={() => onPageChange(pageIndex)}
             >
