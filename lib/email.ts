@@ -86,11 +86,12 @@ type AppointmentEmailData = {
   ownerName?: string;
   status?: string;
   notes?: string | null;
+  petId?: string;
 };
 
 export async function sendAppointmentEmail(
   to: string,
-  type: 'created' | 'status_changed' | 'cancelled' | 'missed' | 'confirmed' | 'pre_appointment',
+  type: 'created' | 'status_changed' | 'cancelled' | 'missed' | 'confirmed' | 'pre_appointment' | 'completed',
   data: AppointmentEmailData
 ) {
   const formattedDate = new Date(data.date).toLocaleDateString();
@@ -105,7 +106,8 @@ export async function sendAppointmentEmail(
     cancelled: '❌ Appointment Cancelled - Tapales Veterinary Clinic',
     missed: '⚠️ Missed Appointment - Tapales Veterinary Clinic',
     confirmed: '✅ Appointment Confirmed - Tapales Veterinary Clinic',
-    pre_appointment: '🐾 Post-Appointment Report - Tapales Veterinary Clinic'
+    pre_appointment: '🐾 Post-Appointment Report - Tapales Veterinary Clinic',
+    completed: '✅ Appointment Completed - Tapales Veterinary Clinic'
   };
 
   const messages = {
@@ -171,6 +173,15 @@ export async function sendAppointmentEmail(
       <p>Please arrive 10-15 minutes before your scheduled time.</p>
       <p>Your Appointment ID is ${data.appointmentId}</p>
       <p>If you need to reschedule or cancel, please contact us as soon as possible.</p>
+    `,
+    completed: `
+      <p>Your appointment has been completed:</p>
+      <ul>
+        <li>Pet: ${data.petName}</li>
+        <li>Service: ${data.serviceName}</li>
+      </ul>
+      <p> See the report in your pet's profile: <a href="https://tapalesvet.onrender.com/list/pets/${data.petId}">${data.petName}</a></p>
+      <p>Thank you for choosing Tapales Veterinary Clinic.</p>
     `
   };
 

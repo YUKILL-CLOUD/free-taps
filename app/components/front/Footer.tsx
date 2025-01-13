@@ -1,13 +1,17 @@
 'use client'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
+  const { data: session } = useSession()
   
   const footerLinks = [
+    ...(session?.user?.role !== 'admin' ? [{ name: 'Home', href: '/list/home' }] : []),
     { name: 'Services', href: '/list/services' },
+    ...(session?.user?.role !== 'user' ? [{ name: 'Users', href: '/list/users' }] : []),
     { name: 'Privacy Policy', href: 'https://www.termsfeed.com/live/403a22ed-be22-480a-996b-43a41d4c00a9' },
-    { name: 'Contact', href: '/contact' },
+    ...(session?.user?.role !== 'admin' ? [{ name: 'Contact', href: '/list/contacts' }] : []),
   ]
 
   return (

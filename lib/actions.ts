@@ -659,6 +659,20 @@ export async function updateAppointmentStatus(
             ownerName: `${updatedAppointment.user.firstName} ${updatedAppointment.user.lastName}`,
           }
         );
+      } else if (status === 'completed') {
+        await sendAppointmentEmail(
+          updatedAppointment.user.email,
+          'completed',
+          {
+            appointmentId: updatedAppointment.id,
+            petName: updatedAppointment.pet.name,
+            serviceName: updatedAppointment.service.name,
+            date: updatedAppointment.date,
+            time: updatedAppointment.time,
+            ownerName: `${updatedAppointment.user.firstName} ${updatedAppointment.user.lastName}`,
+            petId: updatedAppointment.petId
+          }
+        );
       } else {
         // Send regular status update email for other status changes
         await sendAppointmentEmail(
