@@ -4,11 +4,12 @@ import { prisma } from '@/lib/prisma';
 import { Button } from '@/components/ui/button';
 import HeroSection from '@/app/components/front/ContactHero';
 import Features from '@/app/components/front/Features';
-// import PetRehoming from '@/app/components/front/PetRehoming';
 import { ServiceModal } from '@/app/components/front/ServiceModal';
 import { DeleteServiceModal } from '@/app/components/front/DeleteServiceModal';
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { EditServiceModal } from "@/app/components/front/EditServiceModal";
+import { RehomingPetCarousel } from "@/app/components/front/RehomingPetCarousel";
+import { RehomingPetFormWrapper } from "@/app/components/forms/RehomingPetFormWrapper";
 
 export default async function ServicesPage() {
     const session = await getServerSession(authOptions);
@@ -21,9 +22,9 @@ export default async function ServicesPage() {
         orderBy: { name: 'asc' },
     });
     
-    // const rehomingPets = await prisma.rehomingPet.findMany({
-    //     orderBy: { createdAt: 'desc' },
-    // });
+    const rehomingPets = await prisma.rehomingPet.findMany({
+        orderBy: { createdAt: 'desc' },
+    });
 
     return (
         <div className="container mx-auto px-1 py-4"> 
@@ -61,7 +62,17 @@ export default async function ServicesPage() {
                 ))}
             </div>
             <Features/>
-            {/* <PetRehoming initialPets={rehomingPets} /> */}
+            
+            {/* Pet Rehoming Section */}
+            <div className="mt-12">
+                <h2 className="text-3xl font-bold mb-6">Pets for Rehoming</h2>
+                {session.user.role === "admin" && (
+                    <div className="mb-6">
+                        <RehomingPetFormWrapper />
+                    </div>
+                )}
+                <RehomingPetCarousel />
+            </div>
         </div>
     );
 }

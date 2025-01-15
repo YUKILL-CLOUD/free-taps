@@ -1448,3 +1448,69 @@ export async function fetchUserAppointmentsByStatus(status: string, page: number
 
   return { appointments, count };
 }
+
+//rehoming pet
+export type RehomingPetData = {
+  name: string;
+  age: string;
+  gender: string;
+  breed: string;
+  type: string;
+  imageUrl: string;
+  sellerName: string;
+  sellerPhone: string;
+  sellerEmail: string;
+};
+
+export async function createRehomingPet(formData: FormData) {
+  try {
+    const data = {
+      name: formData.get('name') as string,
+      age: formData.get('age') as string,
+      gender: formData.get('gender') as string,
+      breed: formData.get('breed') as string,
+      type: formData.get('type') as string,
+      imageUrl: formData.get('imageUrl') as string,
+      sellerName: formData.get('sellerName') as string,
+      sellerPhone: formData.get('sellerPhone') as string,
+      sellerEmail: formData.get('sellerEmail') as string,
+    };
+
+    const pet = await prisma.rehomingPet.create({
+      data,
+    });
+
+    revalidatePath('/list/services');
+    return { success: true, data: pet };
+  } catch (error) {
+    console.error('Failed to create rehoming pet:', error);
+    return { success: false, error: 'Failed to create pet listing' };
+  }
+}
+
+export async function getRehomingPets() {
+  try {
+    const pets = await prisma.rehomingPet.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+    return pets;
+  } catch (error) {
+    console.error('Failed to fetch rehoming pets:', error);
+    return [];
+  }
+}
+
+export async function deleteRehomingPet(id: string) {
+  try {
+    await prisma.rehomingPet.delete({
+      where: { id },
+    });
+    revalidatePath('/list/services');
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to delete rehoming pet:', error);
+    return { success: false, error: 'Failed to delete pet listing' };
+  }
+}
