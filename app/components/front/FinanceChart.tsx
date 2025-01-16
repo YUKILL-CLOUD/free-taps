@@ -52,6 +52,7 @@ const AppointmentChart = ({ data }: AppointmentChartProps) => {
             tick={{ fill: "#d1d5db" }} 
             tickLine={false}  
             tickMargin={20}
+            domain={[1, 'auto']}
           />
           <Tooltip />
           <Legend

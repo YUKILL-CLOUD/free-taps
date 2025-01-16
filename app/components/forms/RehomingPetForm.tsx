@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { CldUploadWidget, CldImage } from 'next-cloudinary';
 import {
   Select,
   SelectContent,
@@ -27,15 +28,15 @@ type RehomingPetFormData = {
 };
 
 export function RehomingPetForm({ onClose }: { onClose: () => void }) {
-  const { register, handleSubmit, formState: { errors } } = useForm<RehomingPetFormData>();
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<RehomingPetFormData>();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [img, setImg] = useState<string>('');
 
   const onSubmit = async (data: RehomingPetFormData) => {
     setIsSubmitting(true);
     try {
       const formData = new FormData();
-      Object.entries(data).forEach(([key, value]) => {
+      Object.entries({ ...data, imageUrl: img }).forEach(([key, value]) => {
         formData.append(key, value);
       });
 
@@ -111,26 +112,27 @@ export function RehomingPetForm({ onClose }: { onClose: () => void }) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="imageUrl">Image URL</Label>
-        <Input
-          id="imageUrl"
-          type="file"
-          accept="image/*"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) {
-              const reader = new FileReader();
-              reader.onloadend = () => {
-                setImagePreview(reader.result as string);
-                register('imageUrl').onChange({ target: { value: reader.result } });
-              };
-              reader.readAsDataURL(file);
-            }
-          }}
-        />
-        {imagePreview && (
-          <img src={imagePreview} alt="Preview" className="mt-2 max-w-xs rounded" />
-        )}
+        <Label>Pet Photo</Label>
+        <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
+          {img && (
+            <div className="shrink-0">
+              <CldImage width="100" height="100" src={img} alt="Pet photo" className="rounded-lg" />
+            </div>
+          )}
+           <CldUploadWidget uploadPreset="tapales" onSuccess={(result: any) => {
+            setImg(result.info.secure_url);
+          }}>
+            {({ open }) => (
+              <button
+                type="button"
+                onClick={() => open()}
+                className="w-full sm:w-auto px-4 py-2.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Upload a photo
+              </button>
+            )}
+          </CldUploadWidget>
+        </div>
       </div>
 
       <div className="space-y-4">

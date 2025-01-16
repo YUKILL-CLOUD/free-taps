@@ -2,13 +2,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { useSession } from "next-auth/react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
-import { getRehomingPets } from '@/lib/actions';
+import { getRehomingPets, deleteRehomingPet } from '@/lib/actions';
+import { toast } from 'react-toastify';
 
 type RehomingPet = {
   id: string;
@@ -24,9 +27,11 @@ type RehomingPet = {
 };
 
 export function RehomingPetCarousel() {
+  const { data: session } = useSession();
   const [pets, setPets] = useState<RehomingPet[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedPet, setSelectedPet] = useState<RehomingPet | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
   const [touchStart, setTouchStart] = useState<number | null>(null);
 
@@ -66,6 +71,37 @@ export function RehomingPetCarousel() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!selectedPet) return;
+    
+    setIsDeleting(true);
+    try {
+      const result = await deleteRehomingPet(selectedPet.id);
+      if (result.success) {
+        toast.success('Pet listing deleted successfully');
+        setPets(pets.filter(pet => pet.id !== selectedPet.id));
+        setSelectedPet(null);
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      toast.error('Error deleting pet listing');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  if (pets.length === 0) {
+    return (
+      <div className="w-full max-w-4xl mx-auto p-8 text-center">
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-12">
+          <h3 className="text-xl font-medium text-gray-600 mb-2">No Pets Available</h3>
+          <p className="text-gray-500">There are currently no pets listed for rehoming.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative w-full max-w-4xl mx-auto">
       <div
@@ -103,33 +139,37 @@ export function RehomingPetCarousel() {
         </div>
       </div>
 
-      <Button
-        variant="outline"
-        className="absolute left-2 top-1/2 transform -translate-y-1/2"
-        onClick={prevSlide}
-      >
-        <ChevronLeft className="h-6 w-6" />
-      </Button>
+      {pets.length > 1 && (
+        <>
+          <Button
+            variant="outline"
+            className="absolute left-2 top-1/2 transform -translate-y-1/2"
+            onClick={prevSlide}
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </Button>
 
-      <Button
-        variant="outline"
-        className="absolute right-2 top-1/2 transform -translate-y-1/2"
-        onClick={nextSlide}
-      >
-        <ChevronRight className="h-6 w-6" />
-      </Button>
+          <Button
+            variant="outline"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2"
+            onClick={nextSlide}
+          >
+            <ChevronRight className="h-6 w-6" />
+          </Button>
 
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-        {pets.map((_, index) => (
-          <button
-            key={index}
-            className={`w-3 h-3 rounded-full transition-colors duration-300 ${
-              index === currentIndex ? 'bg-primary' : 'bg-gray-300'
-            }`}
-            onClick={() => setCurrentIndex(index)}
-          />
-        ))}
-      </div>
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+            {pets.map((_, index) => (
+              <button
+                key={index}
+                className={`w-3 h-3 rounded-full transition-colors duration-300 ${
+                  index === currentIndex ? 'bg-primary' : 'bg-gray-300'
+                }`}
+                onClick={() => setCurrentIndex(index)}
+              />
+            ))}
+          </div>
+        </>
+      )}
 
       <Dialog open={!!selectedPet} onOpenChange={() => setSelectedPet(null)}>
         <DialogContent className="max-w-2xl">
@@ -158,6 +198,17 @@ export function RehomingPetCarousel() {
               </div>
             </div>
           </div>
+          {session?.user?.role === "admin" && (
+            <DialogFooter>
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? 'Deleting...' : 'Delete Pet'}
+              </Button>
+            </DialogFooter>
+          )}
         </DialogContent>
       </Dialog>
     </div>
