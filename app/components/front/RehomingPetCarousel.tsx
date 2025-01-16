@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ImageIcon } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import {
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { getRehomingPets, deleteRehomingPet } from '@/lib/actions';
 import { toast } from 'react-toastify';
+import { CldImage } from 'next-cloudinary';
 
 type RehomingPet = {
   id: string;
@@ -104,28 +105,36 @@ export function RehomingPetCarousel() {
 
   return (
     <div className="relative w-full max-w-4xl mx-auto">
-      <div
-        ref={carouselRef}
-        className="overflow-hidden"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-      >
-        <div
-          className="flex transition-transform duration-300 ease-in-out"
-          style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-        >
-          {pets.map((pet) => (
-            <div
-              key={pet.id}
-              className="min-w-full p-4 cursor-pointer"
-              onClick={() => setSelectedPet(pet)}
-            >
+              <div
+                ref={carouselRef}
+                className="overflow-hidden"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+              >
+              <div
+                className="flex transition-transform duration-300 ease-in-out"
+                style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+              >
+                {pets.map((pet) => (
+              <div
+                key={pet.id}
+                className="min-w-full p-4 cursor-pointer"
+                onClick={() => setSelectedPet(pet)}
+              >
               <div className="relative group">
-                <img
-                  src={pet.imageUrl}
-                  alt={pet.name}
-                  className="w-full h-[400px] object-cover rounded-lg"
-                />
+                {pet.imageUrl ? (
+                  <CldImage
+                    width="800"
+                    height="400"
+                    src={pet.imageUrl}
+                    alt={pet.name}
+                    className="w-full h-[400px] object-cover rounded-lg"
+                  />
+                ) : (
+                  <div className="w-full h-[400px] bg-gray-100 rounded-lg flex items-center justify-center">
+                    <ImageIcon className="w-20 h-20 text-gray-400" />
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg flex items-center justify-center">
                   <p className="text-white text-xl">Click to view details</p>
                 </div>
@@ -157,7 +166,7 @@ export function RehomingPetCarousel() {
             <ChevronRight className="h-6 w-6" />
           </Button>
 
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+          <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
             {pets.map((_, index) => (
               <button
                 key={index}
@@ -177,11 +186,19 @@ export function RehomingPetCarousel() {
             <DialogTitle>{selectedPet?.name}</DialogTitle>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4">
-            <img
-              src={selectedPet?.imageUrl}
-              alt={selectedPet?.name}
-              className="w-full h-[300px] object-cover rounded-lg"
-            />
+            {selectedPet?.imageUrl ? (
+              <CldImage
+                width="600"
+                height="300"
+                src={selectedPet.imageUrl}
+                alt={selectedPet.name}
+                className="w-full h-[300px] object-cover rounded-lg"
+              />
+            ) : (
+              <div className="w-full h-[300px] bg-gray-100 rounded-lg flex items-center justify-center">
+                <ImageIcon className="w-16 h-16 text-gray-400" />
+              </div>
+            )}
             <div className="space-y-4">
               <div>
                 <h3 className="font-semibold">Pet Details</h3>
