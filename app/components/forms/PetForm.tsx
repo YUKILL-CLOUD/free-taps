@@ -147,7 +147,7 @@ const PetForm = ({
               <option value="Bird">Bird</option>
               <option value="Reptile">Reptile</option>
               <option value="Rabbit">Rabbit</option>
-              <option value="Rodents">Cat</option>
+              <option value="Rodent">Rodent</option>
               <option value="Others">Others</option>
             </select>
             {errors.type && <p className="mt-2 text-sm text-red-600">{errors.type.message}</p>}
