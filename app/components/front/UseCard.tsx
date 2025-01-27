@@ -23,14 +23,14 @@ const UserCard = async ({
       missed: missedCount,
     };
   } else if (type === "pet") {
-    const [dogCount, catCount, fishCount, birdCount, reptileCount, rabbitCount, rodentsCount, otherCount] = await Promise.all([
+    const [dogCount, catCount, fishCount, birdCount, reptileCount, rabbitCount, rodentCount, otherCount] = await Promise.all([
       prisma.pet.count({ where: { type: { equals: 'DOG', mode: 'insensitive' } } }),
       prisma.pet.count({ where: { type: { equals: 'CAT', mode: 'insensitive' } } }),
       prisma.pet.count({ where: { type: { equals: 'FISH', mode: 'insensitive' } } }),
       prisma.pet.count({ where: { type: { equals: 'BIRD', mode: 'insensitive' } } }),
       prisma.pet.count({ where: { type: { equals: 'REPTILE', mode: 'insensitive' } } }),
       prisma.pet.count({ where: { type: { equals: 'RABBIT', mode: 'insensitive' } } }),
-      prisma.pet.count({ where: { type: { equals: 'RODENTS', mode: 'insensitive' } } }),
+      prisma.pet.count({ where: { type: { equals: 'RODENT', mode: 'insensitive' } } }),
       prisma.pet.count({ where: { type: { equals: 'OTHERS', mode: 'insensitive' } } }),
       prisma.pet.count({ 
         where: { 
@@ -41,7 +41,7 @@ const UserCard = async ({
             { type: { equals: 'BIRD', mode: 'insensitive' } },
             { type: { equals: 'REPTILE', mode: 'insensitive' } },
             { type: { equals: 'RABBIT', mode: 'insensitive' } },
-            { type: { equals: 'RODENTS', mode: 'insensitive' } },
+            { type: { equals: 'RODENT', mode: 'insensitive' } },
             { type: { equals: 'OTHERS', mode: 'insensitive' } }
           ]
         } 
@@ -55,7 +55,7 @@ const UserCard = async ({
       bird: birdCount,
       reptile: reptileCount,
       rabbit: rabbitCount,
-      rodents: rodentsCount,
+      rodent: rodentCount,
       other: otherCount,
     };
   } else if (type === "user") {
@@ -96,7 +96,7 @@ const UserCard = async ({
           <div className="flex flex-col">
             <h1 className="text-sm font-medium text-gray-700 my-2">{data?.reptile} Reptiles</h1>
             <h1 className="text-sm font-medium text-gray-700 my-2">{data?.rabbit} Rabbit</h1>
-            <h1 className="text-sm font-medium text-gray-700 my-2">{data?.rodents} Rodents</h1>
+            <h1 className="text-sm font-medium text-gray-700 my-2">{data?.rodent} Rodent</h1>
             <h1 className="text-sm font-medium text-gray-700 my-2">{data?.other} Others</h1>
           </div>
         </div>
