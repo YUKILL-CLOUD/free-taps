@@ -64,7 +64,7 @@ export default async function ServicesPage() {
             <Features/>
             
             {/* Pet Rehoming Section */}
-            <div className="mt-12">
+            {/* <div className="mt-12">
                 <h2 className="text-3xl font-bold mb-6">Pets for Rehoming</h2>
                 {session.user.role === "admin" && (
                     <div className="mb-6">
@@ -72,7 +72,7 @@ export default async function ServicesPage() {
                     </div>
                 )}
                 <RehomingPetCarousel />
-            </div>
+            </div> */}
         </div>
     );
 }
