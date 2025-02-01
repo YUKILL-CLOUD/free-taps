@@ -45,8 +45,8 @@ const Navbar = () => {
 
       {/* Profile Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4 mt-12 box-shadow-2xl shadow-mainColor-700">
-          <div className="bg-white rounded-lg p-6 w-96 relative max-h-[90vh] overflow-y-auto my-auto">
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4 mt-12">
+          <div className="bg-white rounded-lg p-6 w-96 relative max-h-[90vh] overflow-y-auto my-auto shadow-[0_0_30px_-5px_rgba(0,0,0,0.2)] hover:shadow-[0_0_40px_-5px_rgba(0,0,0,0.25)] transition-shadow duration-200">
             <button 
               onClick={() => setIsModalOpen(false)} 
               className="absolute top-4 right-4"
