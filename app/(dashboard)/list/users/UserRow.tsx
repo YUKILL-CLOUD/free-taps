@@ -54,7 +54,7 @@ export default function UserRow({ item, isAdmin }: UserRowProps) {
         </div>
       </td>
       <td className="hidden md:table-cell">{item.email}</td>
-      <td className="hidden md:table-cell truncate max-w-[100px]">{item.pets?.map((pet) => pet.name).join(', ') || "-"}</td>
+      <td className="hidden md:table-cell truncate max-w-[80px] pr-6">{item.pets?.map((pet) => pet.name).join(', ') || "-"}</td>
       <td className="hidden md:table-cell">{item.createdAt.toLocaleDateString()}</td>
       <td className="hidden md:table-cell">{item.role || 'user'}</td>
       <td>

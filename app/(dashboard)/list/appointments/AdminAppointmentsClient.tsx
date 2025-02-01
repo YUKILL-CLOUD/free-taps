@@ -25,6 +25,7 @@ import Pagination from '@/app/components/front/Pagination';
 import { VaccinationModal } from './modals/VaccinationModal';
 import { CreateAppointmentModal } from './modals/CreateAppointmentModal';
 import { ViewAppointmentModal } from './modals/ViewAppointmentModal';
+import { DateFilter } from './components/DateFilter';
 
 
 type AdminAppointmentsClientProps = {
@@ -80,6 +81,8 @@ export default function AdminAppointmentsClient({
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
+  const [dateFilter, setDateFilter] = useState('all');
+
   useEffect(() => {
     const loadVeterinarians = async () => {
       const vets = await getVeterinarians();
@@ -110,7 +113,8 @@ export default function AdminAppointmentsClient({
         pages.pending, 
         pages.scheduled,
         pages.completed,
-        pages.missed
+        pages.missed,
+        dateFilter
       );
 
       if (!result) {
@@ -270,6 +274,14 @@ export default function AdminAppointmentsClient({
           Create Appointment
         </Button>
       </div>
+
+      <DateFilter 
+        onFilterChange={(filter) => {
+          setDateFilter(filter);
+          refreshAppointments();
+        }}
+        currentFilter={dateFilter}
+      />
 
       <CreateAppointmentModal
         isOpen={isCreateModalOpen}

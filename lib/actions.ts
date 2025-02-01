@@ -9,6 +9,8 @@ import { revalidatePath } from "next/cache";
 import { ITEM_PER_PAGE } from "./settings";
 import { sendAppointmentEmail } from "./email";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { endOfWeek, startOfWeek } from "date-fns";
+import { toZonedTime } from 'date-fns-tz';
 
 type ActionResult = {
   success: boolean;
@@ -816,11 +818,39 @@ export async function fetchAdminAppointments(
   pendingPage: number, 
   scheduledPage: number,
   completedPage: number,
-  missedPage: number
+  missedPage: number,
+  dateFilter?: string
 ) {
-  // First update any missed appointments
   await updateMissedAppointments();
   
+  let dateCondition = {};
+  const timeZone = 'Asia/Manila'; // GMT+8
+  
+  if (dateFilter === 'today') {
+    const today = toZonedTime(new Date(), timeZone);
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    dateCondition = {
+      date: {
+        gte: today,
+        lt: tomorrow,
+      }
+    };
+  } else if (dateFilter === 'week') {
+    const today = toZonedTime(new Date(), timeZone);
+    const startOfWeekDate = startOfWeek(today);
+    const endOfWeekDate = endOfWeek(today);
+    
+    dateCondition = {
+      date: {
+        gte: startOfWeekDate,
+        lte: endOfWeekDate,
+      }
+    };
+  }
+
   const [
     pendingAppointments, 
     scheduledAppointments,
@@ -832,7 +862,10 @@ export async function fetchAdminAppointments(
     missedCount
   ] = await prisma.$transaction([
     prisma.appointment.findMany({
-      where: { status: 'pending' },
+      where: { 
+        status: 'pending',
+        ...dateCondition 
+      },
       include: {
         pet: true,
         service: true,
@@ -843,7 +876,10 @@ export async function fetchAdminAppointments(
       skip: ITEM_PER_PAGE * (pendingPage - 1),
     }),
     prisma.appointment.findMany({
-      where: { status: 'scheduled' },
+      where: { 
+        status: 'scheduled',
+        ...dateCondition 
+      },
       include: {
         pet: true,
         service: true,
@@ -854,7 +890,10 @@ export async function fetchAdminAppointments(
       skip: ITEM_PER_PAGE * (scheduledPage - 1),
     }),
     prisma.appointment.findMany({
-      where: { status: 'completed' },
+      where: { 
+        status: 'completed',
+        ...dateCondition 
+      },
       include: {
         pet: true,
         service: true,
@@ -865,7 +904,10 @@ export async function fetchAdminAppointments(
       skip: ITEM_PER_PAGE * (completedPage - 1),
     }),
     prisma.appointment.findMany({
-      where: { status: 'missed' },
+      where: { 
+        status: 'missed',
+        ...dateCondition 
+      },
       include: {
         pet: true,
         service: true,
@@ -875,21 +917,21 @@ export async function fetchAdminAppointments(
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (missedPage - 1),
     }),
-    prisma.appointment.count({ where: { status: 'pending' } }),
-    prisma.appointment.count({ where: { status: 'scheduled' } }),
-    prisma.appointment.count({ where: { status: 'completed' } }),
-    prisma.appointment.count({ where: { status: 'missed' } }),
+    prisma.appointment.count({ where: { status: 'pending', ...dateCondition } }),
+    prisma.appointment.count({ where: { status: 'scheduled', ...dateCondition } }),
+    prisma.appointment.count({ where: { status: 'completed', ...dateCondition } }),
+    prisma.appointment.count({ where: { status: 'missed', ...dateCondition } }),
   ]);
 
-  return { 
-    pendingAppointments, 
-    scheduledAppointments, 
+  return {
+    pendingAppointments,
+    scheduledAppointments,
     completedAppointments,
     missedAppointments,
     pendingCount,
     scheduledCount,
     completedCount,
-    missedCount
+    missedCount,
   };
 }
 export async function updateMissedAppointments() {

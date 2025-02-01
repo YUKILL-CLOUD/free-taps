@@ -6,6 +6,8 @@ import AdminAppointmentsClient from './AdminAppointmentsClient';
 import ErrorBoundary from '@/app/components/front/ErrorBoundary';
 import { AppointmentWithRelations } from '@/app/components/front/AppointmentTable';
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { startOfWeek, endOfWeek } from "date-fns";
+import { toZonedTime } from 'date-fns-tz';
 
 export default async function AdminAppointmentsPage({
   searchParams,
@@ -31,10 +33,10 @@ export default async function AdminAppointmentsPage({
     { appointments: completedAppointments, count: completedCount },
     { appointments: missedAppointments, count: missedCount },
   ] = await Promise.all([
-    getAppointments('pending', pages.pending),
-    getAppointments('scheduled', pages.scheduled),
-    getAppointments('completed', pages.completed),
-    getAppointments('missed', pages.missed),
+    getAppointments('pending', pages.pending, searchParams.dateFilter),
+    getAppointments('scheduled', pages.scheduled, searchParams.dateFilter),
+    getAppointments('completed', pages.completed, searchParams.dateFilter),
+    getAppointments('missed', pages.missed, searchParams.dateFilter),
   ]);
 
   return (
@@ -55,7 +57,35 @@ export default async function AdminAppointmentsPage({
   );
 }
 
-async function getAppointments(status: string, page: number) {
+async function getAppointments(status: string, page: number, dateFilter?: string) {
+  let dateCondition = {};
+  const timeZone = 'Asia/Manila'; // GMT+8
+  
+  if (dateFilter === 'today') {
+    const today = toZonedTime(new Date(), timeZone);
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    dateCondition = {
+      date: {
+        gte: today,
+        lt: tomorrow,
+      }
+    };
+  } else if (dateFilter === 'week') {
+    const today = toZonedTime(new Date(), timeZone);
+    const startOfWeekDate = startOfWeek(today);
+    const endOfWeekDate = endOfWeek(today);
+    
+    dateCondition = {
+      date: {
+        gte: startOfWeekDate,
+        lte: endOfWeekDate,
+      }
+    };
+  }
+
   const where = status === 'missed' 
     ? {
         OR: [
@@ -64,9 +94,13 @@ async function getAppointments(status: string, page: number) {
             status: 'scheduled',
             date: { lt: new Date() }
           }
-        ]
+        ],
+        ...dateCondition
       }
-    : { status };
+    : { 
+        status,
+        ...dateCondition
+      };
 
   const [appointments, count] = await prisma.$transaction([
     prisma.appointment.findMany({
@@ -74,11 +108,11 @@ async function getAppointments(status: string, page: number) {
       include: { 
         pet: true,
         service: true,
-         user: true,
-         healthRecords: true,
-         vaccinations: true,
-         dewormings: true,
-        },
+        user: true,
+        healthRecords: true,
+        vaccinations: true,
+        dewormings: true,
+      },
       orderBy: { date: status === 'completed' || status === 'missed' ? 'desc' : 'asc' },
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (page - 1),
