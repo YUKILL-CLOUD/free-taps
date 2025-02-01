@@ -5,6 +5,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import UserPageClient from './UserPageClient';
 import { fetchUserAppointments, getAnnouncements, fetchActivities } from '@/lib/actions';
 import { prisma } from '@/lib/prisma';
+import { Announcement } from '@/types/announcement';
 
 export default async function UserPage() {
   const session = await getServerSession(authOptions);
@@ -24,7 +25,7 @@ export default async function UserPage() {
     take: 5,
   });
 
-  const announcements = await getAnnouncements(3);
+  const announcements = await getAnnouncements();
   const activities = await fetchActivities(userData.id);
 
   return (
@@ -32,7 +33,7 @@ export default async function UserPage() {
       initialUser={userData}
       upcomingAppointments={upcomingAppointments}
       userPets={userPets}
-      announcements={announcements}
+      announcements={announcements as Announcement[]}
       activities={activities}
     />
   );

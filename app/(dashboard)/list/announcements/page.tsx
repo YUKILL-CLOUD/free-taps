@@ -5,13 +5,14 @@ import { AnnouncementForm } from '@/app/components/forms/AnnouncementForm';
 import { getAnnouncements, deleteAnnouncement } from '@/lib/actions';
 import { toast } from 'react-toastify';
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Pencil, Trash } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash, AlertCircle } from "lucide-react";
 import { Announcement } from '@/types/announcement';
 
 
@@ -27,7 +28,13 @@ export default function AnnouncementsPage() {
     const fetchAnnouncements = async () => {
         try {
             const data = await getAnnouncements();
-            setAnnouncements(data);
+            // Sort announcements to show important ones first
+            const sortedData = (data as Announcement[]).sort((a, b) => {
+                if (a.status === 'important' && b.status !== 'important') return -1;
+                if (a.status !== 'important' && b.status === 'important') return 1;
+                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+            });
+            setAnnouncements(sortedData);
         } catch (error) {
             toast.error('Failed to fetch announcements');
             console.error('Error fetching announcements:', error);
@@ -107,7 +114,7 @@ export default function AnnouncementsPage() {
                 </div>
                 <div className="w-full grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {announcements.map((announcement) => (
-                        <div key={announcement.id} className="bg-white rounded-lg shadow p-4 relative flex flex-col min-h-[200px]">
+                        <div key={announcement.id} className="bg-white rounded-lg shadow p-4 relative flex flex-col h-[180px]">
                             <div className="absolute top-2 right-2">
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
@@ -133,9 +140,17 @@ export default function AnnouncementsPage() {
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>
-                            <div className="flex-grow">
-                                <h2 className="text-xl font-semibold text-mainColor pr-8">{announcement.title}</h2>
-                                <p className="text-gray-600 mt-2">{announcement.content}</p>
+                            <div className="flex-grow overflow-hidden">
+                                {announcement.status === 'important' && (
+                                    <Badge variant="destructive" className="flex items-center gap-0.7 shrink-0 mb-2 w-fit px-1.5">
+                                        <AlertCircle className="h-3 w-3" />
+                                        Important
+                                    </Badge>
+                                )}
+                                <div className="mb-3">
+                                    <h2 className="text-xl font-semibold text-mainColor">{announcement.title}</h2>
+                                </div>
+                                <p className="text-gray-600 whitespace-normal line-clamp-3">{announcement.content}</p>
                             </div>
                             <div className="flex justify-between items-center mt-4 text-sm text-gray-500 pt-4 border-t">
                                 <span>Starts: {new Date(announcement.startDate).toLocaleDateString('en-US', { 

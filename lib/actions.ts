@@ -2,7 +2,7 @@
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { prisma } from "@/lib/prisma";
-import { Role, Veterinarian } from "@prisma/client";
+import { Announcement, Role, Veterinarian } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { PetSchema } from "@/lib/formValidationSchema";
 import { revalidatePath } from "next/cache";
@@ -261,18 +261,19 @@ export async function updateVeterinarian(formData: FormData) {
 // Announcement Actions
 export async function getAnnouncements(limit?: number) {
   try {
-    // First, clean up expired announcements
     await deleteExpiredAnnouncements();
 
     const announcements = await prisma.announcement.findMany({
       where: {
-        status: "active",
+        status: {
+          in: ['active', 'important'] as const
+        },
       },
       orderBy: { createdAt: "desc" },
       take: limit,
     });
     
-    return announcements;
+    return announcements as Announcement[];
   } catch (error) {
     console.error("Error fetching announcements:", error);
     return [];
@@ -294,6 +295,7 @@ export async function createAnnouncement(formData: FormData): Promise<ActionResu
     const content = formData.get("content") as string;
     const startDate = new Date(formData.get("startDate") as string);
     const endDate = new Date(formData.get("endDate") as string);
+    const status = formData.get("status") as 'active' | 'important';
 
     const newAnnouncement = await prisma.announcement.create({
       data: {
@@ -301,7 +303,7 @@ export async function createAnnouncement(formData: FormData): Promise<ActionResu
         content,
         startDate,
         endDate,
-        status: "active",
+        status,
       },
     });
 
@@ -336,6 +338,7 @@ export async function editAnnouncement(
     const content = formData.get("content") as string;
     const startDate = new Date(formData.get("startDate") as string);
     const endDate = new Date(formData.get("endDate") as string);
+    const status = formData.get("status") as 'active' | 'important';
 
     const updatedAnnouncement = await prisma.announcement.update({
       where: { id },
@@ -344,6 +347,7 @@ export async function editAnnouncement(
         content,
         startDate,
         endDate,
+        status,
       },
     });
 

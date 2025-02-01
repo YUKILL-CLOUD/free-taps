@@ -39,12 +39,13 @@ const announcementSchema = z.object({
     endDate: z.date({
       required_error: "End date is required",
     }),
-  }).refine((data) => data.endDate > data.startDate, {
+    status: z.enum(['active', 'important',]).default('active'),
+}).refine((data) => data.endDate > data.startDate, {
     message: "End date must be after start date",
     path: ["endDate"],
-  });
+});
   
-  type AnnouncementFormValues = z.infer<typeof announcementSchema>
+type AnnouncementFormValues = z.infer<typeof announcementSchema>
   
 interface AnnouncementFormProps {
   initialData?: Announcement | null;
@@ -60,6 +61,7 @@ export function AnnouncementForm({ initialData, onClose, onSuccess }: Announceme
       content: initialData?.content || "",
       startDate: initialData?.startDate ? new Date(initialData.startDate) : undefined,
       endDate: initialData?.endDate ? new Date(initialData.endDate) : undefined,
+      status: initialData?.status || "active",
     },
   });
 
@@ -70,6 +72,7 @@ export function AnnouncementForm({ initialData, onClose, onSuccess }: Announceme
         content: initialData.content,
         startDate: new Date(initialData.startDate),
         endDate: new Date(initialData.endDate),
+        status: initialData.status,
       });
     }
   }, [initialData, form]);
@@ -240,6 +243,25 @@ export function AnnouncementForm({ initialData, onClose, onSuccess }: Announceme
               )}
             />
           </div>
+
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem className="flex flex-col space-y-2">
+                <FormLabel>Announcement Priority</FormLabel>
+                <FormControl>
+                  <select 
+                    {...field}
+                    className="p-2 border rounded-md w-32"
+                  >
+                    <option value="active">Normal</option>
+                    <option value="important">Important</option>
+                  </select>
+                </FormControl>
+              </FormItem>
+            )}
+          />
 
           <Button 
             type="submit" 

@@ -4,5 +4,6 @@ export interface Announcement {
     content: string;
     startDate: Date;
     endDate: Date;
-    status: string;
-  }
+    status: 'active' | 'important';
+    createdAt: Date;
+}
