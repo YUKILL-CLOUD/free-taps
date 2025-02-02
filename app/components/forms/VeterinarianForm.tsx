@@ -116,7 +116,7 @@ export function VeterinarianForm({ initialData, onSubmit, onClose }: Veterinaria
           <button 
             type="submit" 
             disabled={isSubmitting} 
-            className={`py-2 px-4 rounded ${isSubmitting ? 'bg-gray-300' : 'bg-blue-600 hover:bg-blue-700 text-white font-bold'}`}
+            className={`py-2 px-4 rounded ${isSubmitting ? 'bg-gray-300' : 'bg-mainColor-700 hover:bg-mainColor-800 text-white font-bold'}`}
           >
             {initialData ? 'Update Veterinarian' : 'Add Veterinarian'}
           </button>

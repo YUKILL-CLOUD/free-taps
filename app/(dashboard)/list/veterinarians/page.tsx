@@ -45,7 +45,7 @@ export default function VeterinarianPage() {
                     <VeterinarianProfile veterinarian={veterinarian} />
                     <button
                         onClick={() => setIsEditing(true)}
-                        className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
+                        className="mt-4 bg-mainColor-700 hover:bg-mainColor-800 text-white font-bold py-2 px-4 rounded"
                     >
                         Edit Information
                     </button>
