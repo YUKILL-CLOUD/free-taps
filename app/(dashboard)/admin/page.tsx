@@ -4,6 +4,7 @@ import UserCard from "@/app/components/front/UseCard";
 import CountChartContainer from "@/app/components/front/CountChartContainer";
 import { prisma } from "@/lib/prisma";
 import AppointmentChart from "@/app/components/front/FinanceChart";
+import { AppointmentAreaChart } from "@/app/components/front/AppointmentAreaChart";
 import BigCalendar from "@/app/components/front/BigCalendar";
 import BigCalendarAdmin from "@/app/components/front/BigCalendarAdmin";
 
@@ -32,43 +33,43 @@ const AdminPage = async () => {
     orderBy: {
       date: 'asc',
     },
-    
   });
- // Format appointments for the EventCalendar component
- const formattedAppointments = upcomingAppointments.map(appointment => {
-   // Get the date parts
-   const isoDate = appointment.date.toISOString();
-   const [datePart] = isoDate.split("T");
-   const [year, month, day] = datePart.split("-");
-   
-   // Get the time parts
-   const isoTime = appointment.time.toISOString();
-   const timeString = isoTime.split('T')[1].split('.')[0];
-   const [hours, minutes] = timeString.split(':').map(Number);
-   
-   // Convert to 12-hour format
-   const hour12 = hours % 12 || 12;
-   const period = hours >= 12 ? 'PM' : 'AM';
-   const formattedMinutes = minutes.toString().padStart(2, '0');
-   const formattedTime = `${hour12}:${formattedMinutes} ${period}`;
 
-   // Format date
-   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-   const formattedDate = `${monthNames[parseInt(month, 10) - 1]} ${parseInt(day, 10)}, ${year}`;
+  // Format appointments for the EventCalendar component
+  const formattedAppointments = upcomingAppointments.map(appointment => {
+    // Get the date parts
+    const isoDate = appointment.date.toISOString();
+    const [datePart] = isoDate.split("T");
+    const [year, month, day] = datePart.split("-");
+    
+    // Get the time parts
+    const isoTime = appointment.time.toISOString();
+    const timeString = isoTime.split('T')[1].split('.')[0];
+    const [hours, minutes] = timeString.split(':').map(Number);
+    
+    // Convert to 12-hour format
+    const hour12 = hours % 12 || 12;
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const formattedMinutes = minutes.toString().padStart(2, '0');
+    const formattedTime = `${hour12}:${formattedMinutes} ${period}`;
 
-   return {
-     id: appointment.id,
-     title: `${appointment.pet.name} - ${appointment.service.name}`,
-     date: new Date(formattedDate),
-     time: formattedTime,
-     description: `Owner: ${appointment.user.firstName} ${appointment.user.lastName}`,
-     status: appointment.status,
-   };
- });
+    // Format date
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const formattedDate = `${monthNames[parseInt(month, 10) - 1]} ${parseInt(day, 10)}, ${year}`;
+
+    return {
+      id: appointment.id,
+      title: `${appointment.pet.name} - ${appointment.service.name}`,
+      date: new Date(formattedDate),
+      time: formattedTime,
+      description: `Owner: ${appointment.user.firstName} ${appointment.user.lastName}`,
+      status: appointment.status,
+    };
+  });
 
   async function getAppointmentData(): Promise<AppointmentData[]> {
     const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 90); // Changed to 90 days to match the chart's max range
 
     const appointments = await prisma.appointment.groupBy({
       by: ['date', 'status'],
@@ -81,7 +82,7 @@ const AdminPage = async () => {
         id: true,
       },
       orderBy: {
-        date: 'asc', // Add this to sort by date ascending
+        date: 'asc',
       },
     });
 
@@ -139,8 +140,9 @@ const AdminPage = async () => {
           </div>
         </div>
         {/* BOTTOM CHART */}
-        <div className="w-full h-[500px] shadow-lg hover:shadow-xl transition-shadow duration-300">
-          <AppointmentChart data={appointmentData} />
+        <div className="w-full shadow-lg hover:shadow-xl transition-shadow duration-300">
+          {/* <AppointmentChart data={appointmentData} /> */}
+          <AppointmentAreaChart data={appointmentData} />
         </div>
       </div>
       {/* RIGHT */}
