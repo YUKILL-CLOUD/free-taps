@@ -5,6 +5,8 @@ import { useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { formatDate } from "@/lib/dateFormat";
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isSameDay, isWithinInterval } from "date-fns";
+
 
 type ValuePiece = Date | null;
 type Value = ValuePiece | [ValuePiece, ValuePiece];
@@ -24,6 +26,13 @@ interface EventCalendarProps {
 
 const EventCalendar: React.FC<EventCalendarProps> = ({ appointments }) => {
   const [value, onChange] = useState<Value>(new Date());
+  const [filter, setFilter] = useState<string>("all");
+  
+  const today = new Date();
+  const weekStart = startOfWeek(today, { weekStartsOn: 0 }); 
+  const weekEnd = endOfWeek(today, { weekStartsOn: 0 });
+  const monthStart = startOfMonth(today); 
+  const monthEnd = endOfMonth(today);
 
   const formatCustomDate = (date: Date) => {
     const isoDate = date.toISOString();
@@ -33,6 +42,27 @@ const EventCalendar: React.FC<EventCalendarProps> = ({ appointments }) => {
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     return `${monthNames[parseInt(month, 10) - 1]} ${parseInt(day, 10)}, ${year}`;
   };
+
+   // Filtered upcoming appointments based on selected filter
+   const filteredUpcomingAppointments = appointments.filter((appointment) => {
+    const appointmentDate = new Date(appointment.date);
+
+    if (filter === "today") {
+      return isSameDay(appointmentDate, today);
+    }
+    if (filter === "this_week") {
+      return isWithinInterval(appointmentDate, { start: weekStart, end: weekEnd });
+    }
+    if (filter === "this_month") {
+      return isWithinInterval(appointmentDate, { start: monthStart, end: monthEnd });
+    }
+    return appointmentDate >= today; // Default: show all upcoming
+  }).sort((a, b) => a.date.getTime() - b.date.getTime());
+  const selectedDate = value instanceof Date ? value : new Date();
+  const appointmentsForSelectedDate = appointments.filter((appointment) => {
+    const appointmentDate = new Date(appointment.date);
+    return isSameDay(appointmentDate, selectedDate);
+  });
 
   const tileContent = ({ date, view }: { date: Date; view: string }) => {
     if (view === 'month') {
@@ -55,20 +85,11 @@ const EventCalendar: React.FC<EventCalendarProps> = ({ appointments }) => {
     }
     return null;
   };
-
-  const selectedDate = value instanceof Date ? value : new Date();
-  const appointmentsForSelectedDate = appointments.filter((appointment) => {
-    const appointmentDate = new Date(appointment.date);
-    return (
-      appointmentDate.getFullYear() === selectedDate.getFullYear() &&
-      appointmentDate.getMonth() === selectedDate.getMonth() &&
-      appointmentDate.getDate() === selectedDate.getDate()
-    );
-  });
   
   const upcomingAppointments = appointments
     .filter(appointment => appointment.date >= new Date())
     .sort((a, b) => a.date.getTime() - b.date.getTime());
+    
 
   return (
     <div className="bg-white p-4 rounded-md shadow-lghover:shadow-xl transition-shadow duration-300">
@@ -103,16 +124,36 @@ const EventCalendar: React.FC<EventCalendarProps> = ({ appointments }) => {
           )}
         </div>
       </div>
-      <div className="w-full md:w-2/2 py-5">
+        {/* Upcoming Appointments with Filter */}
+        <div className="w-full md:w-2/2 py-5">
         <h2 className="text-lg font-semibold mb-4">Upcoming Appointments</h2>
-        <div className={`${upcomingAppointments.length > 10 ? 'max-h-[300px] overflow-y-auto' : ''}`}>
-          {upcomingAppointments.length > 0 ? (
+
+        {/* Filter Buttons */}
+        <div className="flex space-x-2 mb-4">
+          {["all", "today", "this_week", "this_month"].map((option) => (
+            <button
+              key={option}
+              className={`px-3 py-1 rounded-md ${
+                filter === option ? "bg-mainColor-500 text-white" : "bg-mainColor-100 text-mainColor-700"
+              }`}
+              onClick={() => setFilter(option)}
+            >
+              {option === "all" ? "All" : option.replace("_", " ").replace(/\b\w/g, (char) => char.toUpperCase())}
+            </button>
+          ))}
+        </div>
+
+        {/* Filtered Appointment List */}
+        <div className={`${filteredUpcomingAppointments.length > 5 ? "max-h-[300px] overflow-y-auto" : ""}`}>
+          {filteredUpcomingAppointments.length > 0 ? (
             <ul className="space-y-2">
-              {upcomingAppointments.map((appointment) => (
+              {filteredUpcomingAppointments.map((appointment) => (
                 <li key={appointment.id} className="p-2 rounded-md border border-mainColor-200 bg-mainColor-50">
                   <p className="font-medium text-mainColor-700">{appointment.title}</p>
                   <p className="text-sm text-mainColor-600">{appointment.description}</p>
-                  <p className="text-sm text-mainColor-500">{appointment.date.toDateString()} - {appointment.time}</p>
+                  <p className="text-sm text-mainColor-500">
+                    {format(new Date(appointment.date), "MMM dd, yyyy")} - {appointment.time}
+                  </p>
                 </li>
               ))}
             </ul>
