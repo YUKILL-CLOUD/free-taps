@@ -109,6 +109,14 @@ export default function LoginForm() {
       </form>
 
       <div className="text-center text-sm text-gray-500">
+        <div className="mb-2">
+          <Link 
+            href="/forgot-password" 
+            className="text-mainColor-600 hover:text-mainColor-700 font-medium"
+          >
+            Forgot your password?
+          </Link>
+        </div>
         Don&apos;t have an account?{' '}
         <Link 
           href="/register" 

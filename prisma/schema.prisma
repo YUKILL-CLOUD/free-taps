@@ -51,7 +51,7 @@ enum Role {
 model User {
   id            String         @id @default(auto()) @map("_id") @db.ObjectId
   email         String        @unique
-  emailVerified DateTime?
+  emailVerified DateTime? @default(now())
   password      String
   firstName     String
   lastName      String
@@ -59,6 +59,10 @@ model User {
   role          Role          @default(user)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+  resetToken    String?
+  resetTokenExpiry DateTime?
+  verifyPin     String?
+  verifyPinExpiry DateTime?
   pets          Pet[]
   notifications Notification[]
   appointments  Appointment[]

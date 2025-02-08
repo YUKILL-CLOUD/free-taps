@@ -9,7 +9,15 @@ const matchers = Object.entries(routeAccessMap).map(([route, allowedRoles]) => (
   allowedRoles,
 }));
 
-const publicRoutes = ['/', '/register'];
+const publicRoutes = [
+  '/', 
+  '/register',
+  '/forgot-password',
+  '/reset-password',
+  '/verify-email',
+  '/api/password-reset',
+  '/api/verify-email',
+];
 
 export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request });
@@ -51,6 +59,11 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
-  ],
+    '/admin/:path*',
+    '/list/:path*',
+    '/login',
+    '/register',
+    '/verify-email',
+    '/api/verify-email',
+  ]
 };

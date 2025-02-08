@@ -74,7 +74,21 @@ const styles = {
     padding: 12px;
     margin: 15px 0;
     border-radius: 0 6px 6px 0;
-  `
+  `, 
+  codeContainer: `
+  text-align: center;
+  margin: 30px 0;
+  padding: 20px;
+  background-color: #F3F4F6;
+  border-radius: 8px;
+`,
+code: `
+  font-size: 32px;
+  font-weight: bold;
+  letter-spacing: 8px;
+  color: #4F46E5;
+  font-family: monospace;
+`,
 };
 
 type AppointmentEmailData = {
@@ -206,5 +220,90 @@ export async function sendAppointmentEmail(
     await transporter.sendMail(mailOptions);
   } catch (error) {
     console.error('Error sending email:', error);
+  }
+}
+
+export async function sendPasswordResetEmail(to: string, token: string) {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
+  (process.env.NODE_ENV === 'production' 
+    ? 'https://tapalesvet.onrender.com' 
+    : 'http://localhost:3000'
+  );
+
+const resetLink = `${baseUrl}/reset-password?token=${token}`;
+
+  const mailOptions = {
+    from: `"Tapales Veterinary Clinic" <${process.env.EMAIL_USER}>`,
+    to,
+    subject: '🔐 Password Reset Request - Tapales Veterinary Clinic',
+    html: `
+      <div style="${styles.container}">
+        <div style="${styles.header}">
+          <h1 style="${styles.title}">Password Reset Request</h1>
+        </div>
+        <div style="${styles.content}">
+          <p>You requested to reset your password. Click the button below to set a new password:</p>
+          <a href="${resetLink}" style="${styles.button}">Reset Password</a>
+          <p style="${styles.note}">This link will expire in 1 hour.</p>
+          <p>If you didn't request this, please ignore this email.</p>
+        </div>
+        <div style="${styles.footer}">
+          <p>This is an automated message. Please do not reply to this email.</p>
+        </div>
+      </div>
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+    throw error;
+  }
+}
+
+export async function sendVerificationEmail(to: string, pin: string) {
+  const mailOptions = {
+    from: `"Tapales Veterinary Clinic" <${process.env.EMAIL_USER}>`,
+    to,
+    subject: '✉️ Verify Your Email - Tapales Veterinary Clinic',
+    html: `
+      <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
+        <div style="text-align: center; padding: 20px 0;">
+          <h1 style="color: #4F46E5; margin: 0;">Verify Your Email</h1>
+        </div>
+        <div style="background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <p>Your verification code is:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #4F46E5;">
+              ${pin}
+            </div>
+          </div>
+          <p style="color: #666; font-size: 14px;">This code will expire in 10 minutes.</p>
+        </div> <div style="${styles.container}">
+        <div style="${styles.header}">
+          <h1 style="${styles.title}">Verify Your Email</h1>
+        </div>
+        <div style="${styles.content}">
+          <p>Thank you for registering! Please use the verification code below to verify your email address:</p>
+          <div style="${styles.codeContainer}">
+            <div style="${styles.code}">${pin}</div>
+          </div>
+          <p style="${styles.note}">This code will expire in 10 minutes.</p>
+          <p>If you didn't request this verification, please ignore this email.</p>
+        </div>
+        <div style="${styles.footer}">
+          <p>This is an automated message. Please do not reply to this email.</p>
+        </div>
+      </div>
+      </div>
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error('Error sending verification email:', error);
+    throw error;
   }
 }

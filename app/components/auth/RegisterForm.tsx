@@ -36,7 +36,7 @@ export default function RegisterForm() {
         throw new Error(await res.text());
       }
 
-      router.push('/login');
+      router.push(`/verify-email?email=${encodeURIComponent(formData.get('email') as string)}`);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Something went wrong');
     } finally {
@@ -103,12 +103,12 @@ export default function RegisterForm() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 px-3 flex items-center"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none"
               >
                 {showPassword ? (
-                  <EyeSlashIcon className="h-5 w-5 text-gray-500" />
+                  <EyeSlashIcon className="h-5 w-5" aria-hidden="true" />
                 ) : (
-                  <EyeIcon className="h-5 w-5 text-gray-500" />
+                  <EyeIcon className="h-5 w-5" aria-hidden="true" />
                 )}
               </button>
             </div>
