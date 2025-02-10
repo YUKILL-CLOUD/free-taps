@@ -8,6 +8,7 @@ import { AppointmentWithRelations } from '@/app/components/front/AppointmentTabl
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { startOfWeek, endOfWeek } from "date-fns";
 import { toZonedTime } from 'date-fns-tz';
+import { hasTimeConflict } from '@/lib/appointments';
 
 export default async function AdminAppointmentsPage({
   searchParams,
@@ -102,23 +103,44 @@ async function getAppointments(status: string, page: number, dateFilter?: string
         ...dateCondition
       };
 
-  const [appointments, count] = await prisma.$transaction([
-    prisma.appointment.findMany({
-      where,
-      include: { 
-        pet: true,
-        service: true,
-        user: true,
-        healthRecords: true,
-        vaccinations: true,
-        dewormings: true,
-      },
-      orderBy: { date: status === 'completed' || status === 'missed' ? 'desc' : 'asc' },
-      take: ITEM_PER_PAGE,
-      skip: ITEM_PER_PAGE * (page - 1),
-    }),
-    prisma.appointment.count({ where }),
-  ]);
+  const appointments = await prisma.appointment.findMany({
+    where,
+    include: { 
+      pet: true,
+      service: true,
+      user: true,
+      healthRecords: true,
+      vaccinations: true,
+      dewormings: true,
+    },
+    orderBy: [
+      { date: status === 'completed' || status === 'missed' ? 'desc' : 'asc' },
+      { time: 'asc' }
+    ],
+  });
 
-  return { appointments, count };
+  // Check for time conflicts in scheduled appointments
+  if (status === 'scheduled') {
+    const appointmentsWithConflicts = appointments.map(appt => ({
+      ...appt,
+      hasConflict: appointments.some((other) => 
+        other.id !== appt.id && 
+        hasTimeConflict(appt.date, appt.time, other.date, other.time)
+      )
+    }));
+    return { 
+      appointments: appointmentsWithConflicts.slice(ITEM_PER_PAGE * (page - 1), ITEM_PER_PAGE * page), 
+      count: appointments.length 
+    };
+  }
+
+  const paginatedAppointments = appointments.slice(
+    ITEM_PER_PAGE * (page - 1),
+    ITEM_PER_PAGE * page
+  );
+
+  return { 
+    appointments: paginatedAppointments, 
+    count: appointments.length 
+  };
 }

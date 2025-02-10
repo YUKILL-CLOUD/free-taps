@@ -26,6 +26,7 @@ import { VaccinationModal } from './modals/VaccinationModal';
 import { CreateAppointmentModal } from './modals/CreateAppointmentModal';
 import { ViewAppointmentModal } from './modals/ViewAppointmentModal';
 import { DateFilter } from './components/DateFilter';
+import { hasTimeConflict } from '@/lib/appointments';
 
 
 type AdminAppointmentsClientProps = {
@@ -162,17 +163,36 @@ export default function AdminAppointmentsClient({
     }
   };
 
-  const handleStatusChange = async (appointmentId: string, newStatus: string) => {
+  const handleStatusUpdate = async (appointmentId: string, newStatus: string) => {
     try {
-      const result = await updateAppointmentStatus({} as any, { id: appointmentId, status: newStatus });
-      if (result.success) {
-        toast.success(`Appointment status updated to ${newStatus}`);
-        refreshAppointments();
-      } else {
-        toast.error(result.error || 'Failed to update appointment status');
+      if (newStatus === 'scheduled') {
+        const appointment = appointments.pending.find(a => a.id === appointmentId);
+        if (!appointment) {
+          toast.error('Appointment not found');
+          return;
+        }
+
+        const conflicts = appointments.scheduled.some(scheduled => 
+          hasTimeConflict(
+            scheduled.date, 
+            scheduled.time, 
+            appointment.date, 
+            appointment.time
+          )
+        );
+
+        if (conflicts) {
+          toast.error('Cannot approve: Time slot conflicts with an existing appointment');
+          return;
+        }
       }
+
+      await updateAppointmentStatus({} as any, { id: appointmentId, status: newStatus });
+      await refreshAppointments();
+      toast.success('Appointment status updated successfully');
+
     } catch (error) {
-      toast.error('An error occurred while updating the appointment status');
+      toast.error('Failed to update appointment status');
     }
   };
 
@@ -215,7 +235,7 @@ export default function AdminAppointmentsClient({
         {getAvailableStatusTransitions(appointment).map((status) => (
           <DropdownMenuItem
             key={status}
-            onClick={() => handleStatusChange(appointment.id, status)}
+            onClick={() => handleStatusUpdate(appointment.id, status)}
             className={status === 'completed' ? 'text-green-600' : ''}
           >
             Mark as {status}

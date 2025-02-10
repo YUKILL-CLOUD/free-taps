@@ -111,7 +111,16 @@ export function AdminAppointmentTable({
                   // Format minutes to always show two digits
                   const formattedMinutes = minutes.toString().padStart(2, '0');
                   
-                  return `${hour12}:${formattedMinutes} ${period}`;
+                  return (
+                    <div className="flex items-center gap-2">
+                      <span>{`${hour12}:${formattedMinutes} ${period}`}</span>
+                      {appointment.hasConflict && (
+                        <span className="text-red-500 text-xs">
+                          (Time Conflict)
+                        </span>
+                      )}
+                    </div>
+                  );
                 })()}
                     </TableCell>
                       <TableCell className="whitespace-nowrsap hidden sm:table-cell">

@@ -49,6 +49,7 @@ export type AppointmentWithRelations = Appointment & {
     HealthRecord?: any;
     Vaccination?: any;
     Deworming?: any;
+    hasConflict?: boolean;
     // healthRecords: HealthRecord[];
     // vaccinations: Vaccination[];
     // dewormings: Deworming[];

@@ -35,12 +35,12 @@ const EventCalendar: React.FC<EventCalendarProps> = ({ appointments }) => {
   const monthEnd = endOfMonth(today);
 
   const formatCustomDate = (date: Date) => {
-    const isoDate = date.toISOString();
-    const [datePart] = isoDate.split("T");
-    const [year, month, day] = datePart.split("-");
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const day = date.getDate();
     
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    return `${monthNames[parseInt(month, 10) - 1]} ${parseInt(day, 10)}, ${year}`;
+    return `${monthNames[month]} ${day}, ${year}`;
   };
 
    // Filtered upcoming appointments based on selected filter
@@ -59,10 +59,16 @@ const EventCalendar: React.FC<EventCalendarProps> = ({ appointments }) => {
     return appointmentDate >= today; // Default: show all upcoming
   }).sort((a, b) => a.date.getTime() - b.date.getTime());
   const selectedDate = value instanceof Date ? value : new Date();
-  const appointmentsForSelectedDate = appointments.filter((appointment) => {
-    const appointmentDate = new Date(appointment.date);
-    return isSameDay(appointmentDate, selectedDate);
-  });
+  const appointmentsForSelectedDate = appointments
+    .filter((appointment) => {
+      const appointmentDate = new Date(appointment.date);
+      return isSameDay(appointmentDate, selectedDate);
+    })
+    .sort((a, b) => {
+      const timeA = new Date(`1970/01/01 ${a.time}`);
+      const timeB = new Date(`1970/01/01 ${b.time}`);
+      return timeA.getTime() - timeB.getTime();
+    });
 
   const tileContent = ({ date, view }: { date: Date; view: string }) => {
     if (view === 'month') {
@@ -101,7 +107,7 @@ const EventCalendar: React.FC<EventCalendarProps> = ({ appointments }) => {
       />
       <div className="mt-4">
         <h2 className="text-lg font-semibold mb-2">
-          Appointments for  Appointments for {formatCustomDate(selectedDate)}
+          Appointments for {formatCustomDate(selectedDate)}
         </h2>
         <div className={`${appointmentsForSelectedDate.length > 5 ? 'max-h-[250px] overflow-y-auto' : ''}`}>
           {appointmentsForSelectedDate.length > 0 ? (
