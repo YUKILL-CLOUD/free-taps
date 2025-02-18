@@ -10,8 +10,8 @@ import { HealthRecordsTableClient } from "@/app/components/front/HealthRecordsTa
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import { VaccinationsTableClient } from '@/app/components/front/VaccinationsTableClient';
 import { DewormingsTableClient } from "@/app/components/front/DewormingTableClient";
-import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
+// import { Button } from "@/components/ui/button";
+// import { Pencil } from "lucide-react";
 // import { PrescriptionList } from "@/components/PrescriptionList";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { 
@@ -148,8 +148,10 @@ const SinglePetPage = async ({ params, searchParams }: {
                 <span>{(pet.bloodType).toUpperCase()}</span>
               </div>
               <div className="flex items-center gap-2">
-                <CalendarMonth className="w-6 h-6 text-mainColor-600" />
-                <span>{pet.birthday.toDateString()}</span>
+                <Cake className="w-6 h-6 text-mainColor-600" />
+                <span>
+                  {new Date(pet.birthday).toDateString()} • {calculateAge(pet.birthday)} old
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 {pet.sex === 'Male' ? (
@@ -158,10 +160,6 @@ const SinglePetPage = async ({ params, searchParams }: {
                   <Female className="w-6 h-6 text-mainColor-600" />
                 )}
                 <span>{(pet.sex).charAt(0).toUpperCase() + pet.sex.slice(1)}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Cake className="w-6 h-6 text-mainColor-600" />
-                <span>{calculateAge(pet.birthday)} old</span>
               </div>
             </div>
           </div>
