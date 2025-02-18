@@ -176,7 +176,6 @@ export function UpdateAppointmentForm({ appointment, onClose }: UpdateAppointmen
         <Label htmlFor="time">Time</Label>
         <Select 
           onValueChange={(value) => setValue('time', value)} 
-          defaultValue={new Date(appointment.time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select time" />
