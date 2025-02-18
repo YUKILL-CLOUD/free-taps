@@ -35,6 +35,17 @@ type UpdateAppointmentFormProps = {
 };
 
 export function UpdateAppointmentForm({ appointment, onClose }: UpdateAppointmentFormProps) {
+  // // Convert the appointment time to 12-hour format for default value
+  // const getFormattedTime = (date: Date) => {
+  //   const isoTime = appointment.time.toISOString();
+  //   const timeString = isoTime.split('T')[1].split('.')[0];
+  //   const [hours, minutes] = timeString.split(':').map(Number);
+  //   const hour12 = hours % 12 || 12;
+  //   const period = hours >= 12 ? 'PM' : 'AM';
+  //   const formattedMinutes = minutes.toString().padStart(2, '0');
+  //   return `${hour12}:${formattedMinutes} ${period}`;
+  // };
+
   const { register, handleSubmit, setValue } = useForm({
     defaultValues: {
       date: new Date(appointment.date).toISOString().split('T')[0],
@@ -42,18 +53,18 @@ export function UpdateAppointmentForm({ appointment, onClose }: UpdateAppointmen
         const isoTime = appointment.time.toISOString();
         const timeString = isoTime.split('T')[1].split('.')[0];
         const [hours, minutes] = timeString.split(':').map(Number);
-        
-        // Convert to 12-hour format
         const hour12 = hours % 12 || 12;
         const period = hours >= 12 ? 'PM' : 'AM';
         const formattedMinutes = minutes.toString().padStart(2, '0');
-        
         return `${hour12}:${formattedMinutes} ${period}`;
       })(),
       notes: appointment.notes || '',
     },
   });
-  const [selectedDate, setSelectedDate] = useState<string>(new Date(appointment.date).toISOString().split('T')[0]);
+
+  const [selectedDate, setSelectedDate] = useState<string>(
+    new Date(appointment.date).toISOString().split('T')[0]
+  );
   const [bookedTimes, setBookedTimes] = useState<string[]>([]);
 
   useEffect(() => {
@@ -74,7 +85,9 @@ export function UpdateAppointmentForm({ appointment, onClose }: UpdateAppointmen
             const formattedMinutes = minutes.toString().padStart(2, '0');
             return `${hour12}:${formattedMinutes} ${period}`;
           })();
-          return time !== currentAppointmentTime;
+          // Only filter out the current time if the date hasn't changed
+          const currentDate = new Date(appointment.date).toISOString().split('T')[0];
+          return selectedDate === currentDate ? time !== currentAppointmentTime : true;
         }));
       } catch (error) {
         console.error('Error loading booked times:', error);
@@ -83,7 +96,7 @@ export function UpdateAppointmentForm({ appointment, onClose }: UpdateAppointmen
     };
 
     loadBookedTimes();
-  }, [selectedDate, appointment.time]);
+  }, [selectedDate, appointment.time, appointment.date]);
 
   const isTimeBooked = (time: string) => {
     if (!selectedDate || !bookedTimes.length) return false;
@@ -127,6 +140,12 @@ export function UpdateAppointmentForm({ appointment, onClose }: UpdateAppointmen
   };
 
   const onSubmit = async (data: any) => {
+    // Check if the selected time is booked
+    if (isTimeBooked(data.time)) {
+      toast.error('This time slot is already booked. Please select another time.');
+      return;
+    }
+
     const formData = new FormData();
     formData.append('id', appointment.id.toString());
     formData.append('petId', appointment.petId.toString());
@@ -134,7 +153,7 @@ export function UpdateAppointmentForm({ appointment, onClose }: UpdateAppointmen
     formData.append('date', data.date);
     formData.append('time', data.time);
     formData.append('notes', data.notes);
-    formData.append('status', 'pending');
+    formData.append('status', appointment.status);
 
     try {
       const result = await updateAppointment({} as any, formData);
