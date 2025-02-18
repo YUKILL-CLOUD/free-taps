@@ -995,33 +995,37 @@ export async function updateMissedAppointments() {
 
   return missedAppointments.length;
 }
-export async function getBookedTimes(date: string): Promise<string[]> {
+export async function getBookedTimes(date: string) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return [];
+    }
+
     const selectedDate = new Date(date);
     // Set time to start of day in local timezone
     selectedDate.setHours(0, 0, 0, 0);
 
-    const nextDate = new Date(selectedDate);
-    nextDate.setDate(nextDate.getDate() + 1);
+    const nextDay = new Date(selectedDate);
+    nextDay.setDate(nextDay.getDate() + 1);
 
-    console.log('Filtering dates between:', selectedDate, 'and', nextDate);
 
     // Fetch booked times from the database
     const bookedTimes = await prisma.appointment.findMany({
       where: {
-        AND: [
-          {
-            date: {
-              gte: selectedDate,
-              lt: nextDate,
-            },
-          },
-          {
-            status: {
-              in: ['scheduled'],
-            },
-          },
-        ],
+        date: {
+          gte: selectedDate,
+          lt: nextDay,
+        },
+        OR: [
+          { status: 'scheduled' }, // Get all scheduled appointments
+          { 
+            AND: [
+              { status: 'pending' },
+              { userId: session.user.id } // Only get pending appointments for current user
+            ]
+          }
+        ]
       },
       select: {
         date: true,

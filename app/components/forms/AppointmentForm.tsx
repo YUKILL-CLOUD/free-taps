@@ -149,10 +149,6 @@ export function AppointmentForm({ pets, services, onClose, onAppointmentCreated 
       hour = 0;
     }
 
-    console.log('Checking time:', time);
-    console.log('Converted to 24h format:', `${hour}:${minutes}`);
-    console.log('All booked times:', bookedTimes);
-
     return bookedTimes.some(bookedTime => {
       // Split the booked time string (format: "HH:mm AM/PM")
       const [bookedTimeStr, bookedPeriod] = bookedTime.split(' ');
@@ -166,12 +162,7 @@ export function AppointmentForm({ pets, services, onClose, onAppointmentCreated 
         bookedHour = 0;
       }
 
-      const isBooked = bookedHour === hour && parseInt(bookedMinutes) === parseInt(minutes);
-      if (isBooked) {
-        console.log('Found matching booked time:', bookedTime);
-        console.log('Comparing:', `${hour}:${minutes}`, 'with', `${bookedHour}:${bookedMinutes}`);
-      }
-      return isBooked;
+      return bookedHour === hour && parseInt(bookedMinutes) === parseInt(minutes);
     });
   };
 
@@ -211,8 +202,8 @@ export function AppointmentForm({ pets, services, onClose, onAppointmentCreated 
   const onSubmit = async (data: AppointmentFormData) => {
     if (!data.petId || !data.serviceId || !data.date || !data.time) {
       toast.error('Please fill in all required fields');
-        return;
-      }
+      return;
+    }
 
     setIsSubmitting(true);
     const formData = new FormData();
@@ -228,6 +219,8 @@ export function AppointmentForm({ pets, services, onClose, onAppointmentCreated 
         setSelectedPet(null);
         setSearchTerm('');
         onClose();
+        onAppointmentCreated();
+        window.location.href = '/appointments';
       } else {
         toast.error(result.error || 'Failed to create appointment');
       }
