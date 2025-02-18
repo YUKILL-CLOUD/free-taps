@@ -123,6 +123,51 @@ export default function AdminAppointmentsClient({
         return;
       }
 
+      // Check for pending appointments that should be marked as missed
+      const now = new Date();
+      const pendingAppointments = result.pendingAppointments || [];
+      const missedPendingIds = pendingAppointments
+        .filter(appointment => {
+          const appointmentDateTime = new Date(
+            `${appointment.date.toISOString().split('T')[0]}T${appointment.time.toISOString().split('T')[1]}`
+          );
+          return appointmentDateTime < now;
+        })
+        .map(appointment => appointment.id);
+
+      // Update status for missed pending appointments
+      if (missedPendingIds.length > 0) {
+        await Promise.all(
+          missedPendingIds.map(id => 
+            updateAppointmentStatus({} as any, { id, status: 'missed' })
+          )
+        );
+        // Refresh the data again after updates
+        const updatedResult = await fetchAdminAppointments(
+          pages.pending,
+          pages.scheduled,
+          pages.completed,
+          pages.missed,
+          dateFilter
+        );
+        if (updatedResult) {
+          setAppointments({
+            pending: updatedResult.pendingAppointments || [],
+            scheduled: updatedResult.scheduledAppointments || [],
+            completed: updatedResult.completedAppointments || [],
+            missed: updatedResult.missedAppointments || [],
+          });
+          setCounts({
+            pending: updatedResult.pendingCount || 0,
+            scheduled: updatedResult.scheduledCount || 0,
+            completed: updatedResult.completedCount || 0,
+            missed: updatedResult.missedCount || 0
+          });
+          return;
+        }
+      }
+
+      // If no updates needed or after updates, set the state
       setAppointments({
         pending: result.pendingAppointments || [],
         scheduled: result.scheduledAppointments || [],
@@ -183,6 +228,21 @@ export default function AdminAppointmentsClient({
 
         if (conflicts) {
           toast.error('Cannot approve: Time slot conflicts with an existing appointment');
+          return;
+        }
+      }
+
+      if (newStatus === 'missed') {
+        const appointment = appointments.scheduled.find(a => a.id === appointmentId);
+        if (!appointment) return;
+
+        const appointmentDateTime = new Date(
+          `${appointment.date.toISOString().split('T')[0]}T${appointment.time.toISOString().split('T')[1]}`
+        );
+        const now = new Date();
+
+        if (appointmentDateTime > now) {
+          toast.error('Cannot mark as missed: This appointment hasn\'t occurred yet');
           return;
         }
       }
