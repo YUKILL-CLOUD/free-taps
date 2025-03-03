@@ -44,7 +44,7 @@ export default function ForgotPasswordForm() {
             If an account exists for {email}, you will receive a password reset link.
           </p>
           <Link 
-            href="/login"
+            href="/"
             className="block mt-4 text-mainColor-600 hover:text-mainColor-700"
           >
             Back to Login
@@ -82,7 +82,7 @@ export default function ForgotPasswordForm() {
           <div className="text-center text-sm text-gray-500">
             Remember your password?{' '}
             <Link 
-              href="/login"
+              href="/"
               className="text-mainColor-600 hover:text-mainColor-700 font-medium"
             >
               Sign in

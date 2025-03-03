@@ -39,7 +39,7 @@ const columns = [
     accessor: "info",
   },
   {
-    header: "owner",
+    header: "Owner",
     accessor: "pets",
     className: "hidden md:table-cell",
   },
